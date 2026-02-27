@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Check, X, Globe } from 'lucide-react'
 import { FullPageLoader } from "@/components/loader"
-import { StepIndicator } from "@/components/step-indicator"
+import { StepShell } from "@/components/step-shell"
 import P1 from "@/components/form-a"
 import { getOrCreateVisitorID, updateVisitorPage, checkIfBlocked } from "@/lib/visitor-tracking"
 import { useAutoSave } from "@/hooks/use-auto-save"
@@ -204,84 +204,70 @@ export default function CheckPage() {
   }
   
   return (
-    <div className="min-h-screen bg-[#0a4a68]">
-      {/* Header */}
-      <div className="bg-[#0a4a68] px-3 py-3 md:px-6 md:py-4 flex items-center justify-between border-b border-white/10">
-        <button 
-          onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
-          className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2.5 bg-white/95 rounded-lg hover:bg-white transition-colors shadow-md"
-        >
-          <Globe className="w-4 h-4 md:w-5 md:h-5 text-[#0a4a68]" />
-          <span className="text-[#0a4a68] font-semibold text-sm md:text-base">{language === "ar" ? "EN" : "AR"}</span>
-        </button>
-        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 border-2 border-white flex items-center justify-center shadow-md">
-          <span className="text-white text-xl md:text-2xl font-bold">B</span>
-        </div>
-      </div>
+    <>
+      <StepShell
+        step={4}
+        title="تأكيد العرض والدفع"
+        subtitle="راجع تفاصيل العرض ثم أكمل بيانات الدفع."
+        maxWidthClassName="max-w-3xl"
+        headerAction={
+          <button 
+            onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
+            className="flex items-center gap-2 rounded-lg border border-[#d8e2ec] bg-[#f6f9fc] px-3 py-2 text-sm font-bold text-[#145072]"
+          >
+            <Globe className="h-4 w-4 text-[#145072]" />
+            <span>{language === "ar" ? "EN" : "AR"}</span>
+          </button>
+        }
+      >
+        {/* Summary Card - Same as compar page */}
+        <div className="bg-white rounded-lg md:rounded-xl shadow-md p-4 md:p-5 lg:p-6 mb-5 md:mb-6" dir="rtl">
+          <div className="flex items-start justify-between gap-3 md:gap-4">
+            <div className="flex-1">
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">{selectedOffer.name}</h3>
+              <p className="text-blue-600 font-semibold text-base md:text-lg mb-3 md:mb-4">
+                التأمين {selectedOffer.type === "against-others" ? "ضد الغير" : selectedOffer.type === "comprehensive" ? "شامل" : ""}
+              </p>
 
-      {/* Step Indicator */}
-      <div className="bg-[#0a4a68] px-3 py-6 md:px-6 md:py-10 text-center border-b border-white/10">
-        <StepIndicator currentStep={4} />
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-3xl mx-auto -mt-4 md:-mt-6 px-3 md:px-4 pb-6 md:pb-8">
-        <div className="bg-white rounded-xl md:rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-4 md:p-6 lg:p-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#0a4a68] mb-4 md:mb-6 text-center">
-              تأكيد العرض والدفع
-            </h2>
-
-            {/* Summary Card - Same as compar page */}
-            <div className="bg-white rounded-lg md:rounded-xl shadow-md p-4 md:p-5 lg:p-6 mb-5 md:mb-6" dir="rtl">
-              <div className="flex items-start justify-between gap-3 md:gap-4">
-                <div className="flex-1">
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">{selectedOffer.name}</h3>
-                  <p className="text-blue-600 font-semibold text-base md:text-lg mb-3 md:mb-4">
-                    التأمين {selectedOffer.type === "against-others" ? "ضد الغير" : selectedOffer.type === "comprehensive" ? "شامل" : ""}
-                  </p>
-
-                  {selectedOffer.extra_features && selectedOffer.extra_features.length > 0 && (
-                    <div className="space-y-2 mb-3 md:mb-4">
-                      {selectedOffer.extra_features.map((feature: any, idx: number) => (
-                        <div key={idx} className="flex items-start gap-2">
-                          <input
-                            type="checkbox"
-                            checked
-                            readOnly
-                            className="mt-1 w-4 h-4 rounded border-gray-300 cursor-default"
-                          />
-                          <label className="flex-1 text-gray-700 text-xs md:text-sm">
-                            {feature.content}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-col items-end gap-2 md:gap-3">
-                  {selectedOffer.image_url && (
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg border-2 border-gray-200 flex items-center justify-center bg-gray-50 overflow-hidden">
-                      <img
-                        src={selectedOffer.image_url}
-                        alt={selectedOffer.name}
-                        className="w-full h-full object-contain"
+              {selectedOffer.extra_features && selectedOffer.extra_features.length > 0 && (
+                <div className="space-y-2 mb-3 md:mb-4">
+                  {selectedOffer.extra_features.map((feature: any, idx: number) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <input
+                        type="checkbox"
+                        checked
+                        readOnly
+                        className="mt-1 w-4 h-4 rounded border-gray-300 cursor-default"
                       />
+                      <label className="flex-1 text-gray-700 text-xs md:text-sm">
+                        {feature.content}
+                      </label>
                     </div>
-                  )}
-                  <div className="text-left">
-                    <div className="text-2xl md:text-3xl font-bold text-[#0a4a68]">{offerTotalPrice.toFixed(2)}</div>
-                    <div className="text-xs md:text-sm text-gray-600">ريال / سنة</div>
-                  </div>
+                  ))}
                 </div>
+              )}
+            </div>
+
+            <div className="flex flex-col items-end gap-2 md:gap-3">
+              {selectedOffer.image_url && (
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg border-2 border-gray-200 flex items-center justify-center bg-gray-50 overflow-hidden">
+                  <img
+                    src={selectedOffer.image_url}
+                    alt={selectedOffer.name}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+              <div className="text-left">
+                <div className="text-2xl md:text-3xl font-bold text-[#0a4a68]">{offerTotalPrice.toFixed(2)}</div>
+                <div className="text-xs md:text-sm text-gray-600">ريال / سنة</div>
               </div>
             </div>
-            
-            <P1 offerTotalPrice={offerTotalPrice} />
           </div>
         </div>
-      </div>
+
+        <P1 offerTotalPrice={offerTotalPrice} />
+      </StepShell>
 
       {/* OTP Dialog */}
       {showOtpDialog && (
@@ -355,6 +341,6 @@ export default function CheckPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }

