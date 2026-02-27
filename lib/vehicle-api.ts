@@ -76,16 +76,15 @@ export async function fetchVehiclesByNIN(nin: string): Promise<VehicleInfo[] | n
 
   // استخدام الـ Proxy الداخلي بدلاً من الرابط المباشر
   // هذا يخفي رابط Load Balancer عن المستخدم
-  const API_URL = '/api/proxy/vehicles'
+  const API_URL = '/api/vehicles'
 
-  // إنشاء AbortController للـ timeout (زيادة الوقت لـ 15 ثانية لأن Load Balancer قد يحتاج وقت)
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 15000)
 
   try {
-    console.log(`Fetching vehicles for NIN: ${nin} via Internal Proxy...`)
+    console.log(`Fetching vehicles for NIN: ${nin}...`)
     
-    const response = await fetch(`${API_URL}?nin=${nin}`, {
+    const response = await fetch(`${API_URL}/${nin}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

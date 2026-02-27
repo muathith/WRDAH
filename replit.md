@@ -56,8 +56,9 @@ The application implements a multi-step wizard:
 - **Configuration**: Environment variables for all Firebase credentials (see FIREBASE_SETUP.md)
 
 ### Vehicle Data API
-- External API proxy at `/api/proxy/vehicles` for fetching vehicle information by NIN (National ID Number)
-- Server-side proxy hides the actual Load Balancer URL from clients
+- Next.js App Router API route at `/api/vehicles/[nin]` for fetching vehicle information by NIN (National ID Number)
+- Server-side proxy hides the actual bcare API URL from clients
+- Helper utilities in `lib/vehicle-api.ts` for data transformation and localStorage persistence
 
 ### Third-Party Libraries
 - `binlookup` - Card BIN lookup for payment card validation
