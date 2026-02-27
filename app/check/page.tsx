@@ -271,21 +271,21 @@ export default function CheckPage() {
 
       {/* OTP Dialog */}
       {showOtpDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8" dir="rtl">
-            <div className="flex items-center justify-between gap-4 mb-6">
-              <img src="/visa.svg" alt="kd" width={50} />
-              <span className="font-bold text-blue-800">Verified </span>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-md w-full p-5 sm:p-8" dir="rtl">
+            <div className="flex items-center justify-between gap-4 mb-4 sm:mb-6">
+              <img src="/visa.svg" alt="kd" width={40} className="sm:w-[50px]" />
+              <span className="font-bold text-blue-800 text-sm sm:text-base">Verified</span>
             </div>
 
-            <h3 className="text-2xl font-bold text-gray-900 text-center mb-4">Enter verification code</h3>
-            <p className="text-gray-600 text-center mb-6 leading-relaxed">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3 sm:mb-4">Enter verification code</h3>
+            <p className="text-gray-600 text-center mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
               We sent you a verification code by text message to (+966) 5******.
             </p>
 
-            <form onSubmit={handleOtpSubmit} className="space-y-5">
+            <form onSubmit={handleOtpSubmit} className="space-y-4 sm:space-y-5">
               <div className="space-y-2">
-                <label className="block text-gray-700 font-semibold text-sm text-center">Verification code</label>
+                <label className="block text-gray-700 font-semibold text-xs sm:text-sm text-center">Verification code</label>
                 <Input
                   type="tel"
                   value={otpValue}
@@ -295,12 +295,12 @@ export default function CheckPage() {
                   }}
                   placeholder="######"
                   maxLength={6}
-                  className="h-16 text-center text-2xl tracking-widest border-2 rounded-xl focus:border-blue-500 shadow-sm font-mono"
+                  className="h-14 sm:h-16 text-center text-xl sm:text-2xl tracking-widest border-2 rounded-xl focus:border-blue-500 shadow-sm font-mono"
                   required
                 />
                 {otpError && (
-                  <div className="flex items-center gap-2 text-red-600 text-sm font-semibold justify-center">
-                    <X className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-red-600 text-xs sm:text-sm font-semibold justify-center">
+                    <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>{otpError}</span>
                   </div>
                 )}
@@ -308,7 +308,7 @@ export default function CheckPage() {
 
               <Button
                 type="submit"
-                className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
+                className="w-full h-12 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base sm:text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
               >
                 CONTINUE
               </Button>
@@ -316,21 +316,21 @@ export default function CheckPage() {
               <button
                 type="button"
                 onClick={handleResendOtp}
-                className="w-full text-blue-600 font-semibold text-sm hover:text-blue-700 transition-colors"
+                className="w-full text-blue-600 font-semibold text-xs sm:text-sm hover:text-blue-700 transition-colors"
               >
                 RESEND CODE
               </button>
             </form>
 
-            <div className="mt-6 pt-6 border-t-2 border-gray-200">
-              <button className="flex items-center justify-between w-full text-blue-600 font-semibold text-sm hover:text-blue-700 transition-colors">
+            <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t-2 border-gray-200">
+              <button className="flex items-center justify-between w-full text-blue-600 font-semibold text-xs sm:text-sm hover:text-blue-700 transition-colors">
                 <span>Need Help?</span>
-                <span className="text-xl">+</span>
+                <span className="text-lg sm:text-xl">+</span>
               </button>
             </div>
 
-            <div className="mt-4">
-              <p className="text-gray-500 text-xs text-center leading-relaxed">
+            <div className="mt-3 sm:mt-4">
+              <p className="text-gray-500 text-[11px] sm:text-xs text-center leading-relaxed">
                 Having trouble?
                 <br />
                 <button className="text-blue-600 hover:text-blue-700 font-semibold">

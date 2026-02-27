@@ -10,6 +10,7 @@ const firebaseConfig = {
   messagingSenderId: "942243696287",
   appId: "1:942243696287:web:f22830b6f9bf347849dcaa",
   measurementId: "G-3MJ7XRQ2FW",
+  databaseURL: "https://bcxvb-e91f8-default-rtdb.firebaseio.com",
 };
 
 const isFirebaseConfigured = Boolean(

