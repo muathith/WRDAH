@@ -240,14 +240,23 @@ export default function Home() {
         </header>
 
         <section
-          className="mb-3 h-40 rounded-2xl bg-cover bg-center bg-no-repeat"
+          className="mb-3 h-40 rounded-2xl bg-cover bg-center bg-no-repeat relative overflow-hidden flex flex-col items-center justify-center"
           style={{
             backgroundImage:
               "url(https://bcare.com.sa/Web_Bg.0b5a107901701218.svg)",
             backgroundColor: "#1a5676",
           }}
           data-testid="hero-banner"
-        />
+        >
+          <div className="text-center text-white px-4" dir="rtl">
+            <p className="text-lg font-bold leading-tight">
+              أمّن بخصومات يوم التأسيس
+            </p>
+            <p className="text-sm mt-1">
+              وادخل السحب على كاش باك <span className="text-[#f4ad27] font-extrabold">100%</span>
+            </p>
+          </div>
+        </section>
 
         <section
           className="rounded-2xl border border-[#d6e2ed] bg-white p-3 shadow-sm"
@@ -321,6 +330,9 @@ export default function Home() {
             </div>
 
             <div className="relative">
+              <label className="block text-sm font-medium text-[#1f2f3a] text-right mb-1" dir="rtl">
+                رقم الهوية / الإقامة
+              </label>
               <Input
                 type="tel"
                 inputMode="numeric"
@@ -424,6 +436,9 @@ export default function Home() {
             </div>
 
             <div className="relative">
+              <label className="block text-sm font-medium text-[#1f2f3a] text-right mb-1" dir="rtl">
+                {documentType === "بطاقة جمركية" ? "رقم البيان الجمركي" : "الرقم التسلسلي"}
+              </label>
               <div className="relative">
                 <Input
                   type="tel"
