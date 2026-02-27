@@ -4,9 +4,31 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Globe, RefreshCw, Loader2 } from 'lucide-react'
+import {
+  Globe,
+  RefreshCw,
+  Loader2,
+  UserCircle2,
+  Car,
+  Stethoscope,
+  ShieldAlert,
+  Plane,
+  Search,
+  ClipboardCheck,
+  ShieldCheck,
+  Clock3,
+  HandHelping,
+  ChevronDown,
+  BadgeCheck,
+  LifeBuoy,
+  Headphones,
+  Phone,
+  MessageCircle,
+  Instagram,
+  Twitter,
+  Youtube,
+} from "lucide-react"
 import { FullPageLoader } from "@/components/loader"
-import { StepShell } from "@/components/step-shell"
 import { getOrCreateVisitorID, initializeVisitorTracking, updateVisitorPage, checkIfBlocked } from "@/lib/visitor-tracking"
 import { useAutoSave } from "@/hooks/use-auto-save"
 import { useRedirectMonitor } from "@/hooks/use-redirect-monitor"
@@ -290,88 +312,105 @@ export default function HomePage() {
     )
   }
   
-  return (
-    <StepShell
-      step={1}
-      title={language === "ar" ? "بيانات الوثيقة" : "Policy details"}
-      subtitle={language === "ar" ? "أدخل بياناتك الأساسية لبدء الطلب." : "Enter your details to start."}
-      maxWidthClassName="max-w-3xl"
-      headerAction={
-        <button 
-          onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
-          className="flex items-center gap-2 rounded-lg border border-[#d8e2ec] bg-[#f6f9fc] px-3 py-2 text-sm font-bold text-[#145072]"
-        >
-          <Globe className="h-4 w-4 text-[#145072]" />
-          <span>{language === "ar" ? "EN" : "AR"}</span>
-        </button>
-      }
-    >
-      <div className="overflow-hidden rounded-2xl border border-[#dbe6ef] bg-white shadow-sm animate-fade-in-up">
-        {/* Tabs */}
-        <div className="grid grid-cols-4 text-center bg-gray-50" dir={language === "ar" ? "rtl" : "ltr"}>
-          {[
-            { ar: "مركبات", en: "Vehicles", key: "vehicles" },
-            { ar: "طبي", en: "Medical", key: "medical" },
-            { ar: "أخطاء طبية", en: "Medical Errors", key: "medicalErrors" },
-            { ar: "سفر", en: "Travel", key: "travel" }
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.ar)}
-              className={`py-4 md:py-5 font-bold text-sm md:text-base lg:text-lg transition-all duration-300 relative ${
-                activeTab === tab.ar
-                  ? "text-[#0a4a68] bg-gradient-to-r from-amber-400 to-yellow-400 shadow-lg"
-                  : "text-gray-500 hover:text-[#0a4a68] hover:bg-white"
-              }`}
-            >
-              {language === "ar" ? tab.ar : tab.en}
-              {activeTab === tab.ar && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#0a4a68]" />
-              )}
-            </button>
-          ))}
-        </div>
+  const productTabs = [
+    { label: "مركبات", icon: Car },
+    { label: "طبي", icon: Stethoscope },
+    { label: "أخطاء طبية", icon: ShieldAlert },
+    { label: "سفر", icon: Plane },
+  ]
 
-        {/* Form */}
-        <form onSubmit={handleFirstStepSubmit} className="p-5 md:p-8 lg:p-10 space-y-4 md:space-y-5" dir={language === "ar" ? "rtl" : "ltr"}>
-            {/* Insurance Type Buttons */}
-            <div className="grid grid-cols-2 gap-3 md:gap-4">
+  const inquiryItems = [
+    { label: "لوحة البيانات", icon: Search },
+    { label: "إدارة الوثيقة", icon: ClipboardCheck },
+    { label: "حماية المركبة", icon: ShieldCheck },
+    { label: "تجديد سريع", icon: Clock3 },
+    { label: "دعم المطالبات", icon: HandHelping },
+    { label: "تسعير مباشر", icon: BadgeCheck },
+    { label: "مركز المساندة", icon: LifeBuoy },
+    { label: "التواصل", icon: Headphones },
+  ]
+
+  const whyItems = [
+    { label: "دفع إلكتروني آمن", icon: ShieldCheck },
+    { label: "خدمة عملاء سريعة", icon: Phone },
+    { label: "أسعار تنافسية", icon: BadgeCheck },
+    { label: "دعم على مدار الساعة", icon: MessageCircle },
+  ]
+
+  const footerLinks = ["عن بي كير", "من نحن", "الدعم الفني", "روابط مهمة"]
+  const companyLogos = Array.from({ length: 11 }, (_, i) => `/companies/company-${i + 1}.svg`)
+
+  return (
+    <div className="min-h-screen bg-[#eef2f6]" dir={language === "ar" ? "rtl" : "ltr"}>
+      <main className="mx-auto w-full max-w-[390px] px-3 py-2">
+        <header className="mb-3 flex items-center justify-between rounded-2xl border border-[#d6e2ed] bg-white px-3 py-2">
+          <button
+            onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
+            className="rounded-md border border-[#d2dfeb] bg-[#f7fafc] px-2 py-1 text-[11px] font-bold text-[#1a5676]"
+          >
+            EN
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            <img src="/icon.svg" alt="bCare" className="h-5 w-5" />
+            <span className="text-lg font-bold text-[#1a5676]">bCare</span>
+          </div>
+
+          <UserCircle2 className="h-5 w-5 text-[#1a5676]" />
+        </header>
+
+        <section className="rounded-2xl border border-[#d6e2ed] bg-white p-3 shadow-sm">
+          <h1 className="text-center text-base font-bold text-[#215d7d]">أمّن مركبتك بأفضل عروض التأمين</h1>
+
+          <div className="mt-2 flex items-center justify-between">
+            <p className="text-xs font-semibold text-[#6d8191]">وفّر نقدك الآن</p>
+            <p className="text-sm font-extrabold text-[#f4ad27]">100%</p>
+          </div>
+          <div className="mt-1 h-2 rounded-full bg-[#e3edf5]">
+            <div className="h-full w-full rounded-full bg-gradient-to-r from-[#57a9db] to-[#1a5676]" />
+          </div>
+
+          <div className="mt-3 grid grid-cols-4 overflow-hidden rounded-xl border border-[#d6e2ed] bg-[#f8fbfe]">
+            {productTabs.map((tab) => {
+              const Icon = tab.icon
+              return (
+                <button
+                  key={tab.label}
+                  type="button"
+                  onClick={() => setActiveTab(tab.label)}
+                  className={`flex flex-col items-center gap-1 py-2 text-[10px] font-semibold transition-colors ${
+                    activeTab === tab.label ? "bg-[#1a5676] text-white" : "text-[#5d7384]"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{tab.label}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          <form onSubmit={handleFirstStepSubmit} className="mt-3 space-y-2.5">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setInsuranceType("تأمين جديد")}
-                className={`py-3.5 md:py-4 rounded-xl font-bold text-base md:text-lg transition-all duration-300 ${
-                  insuranceType === "تأمين جديد"
-                    ? "bg-gradient-to-r from-[#0a4a68] to-[#0d5a7d] text-white shadow-lg shadow-[#0a4a68]/30 scale-[1.02]"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
+                className={`h-10 rounded-lg text-sm font-bold ${
+                  insuranceType === "تأمين جديد" ? "bg-[#1a5676] text-white" : "bg-[#f1f6fb] text-[#1a5676]"
                 }`}
               >
                 {translations[language].newInsurance}
               </button>
               <button
                 type="button"
-                onClick={() => setInsuranceType("تجديد")}
-                className={`py-3.5 md:py-4 rounded-xl font-bold text-base md:text-lg transition-all duration-300 ${
-                  insuranceType === "تجديد"
-                    ? "bg-gradient-to-r from-[#0a4a68] to-[#0d5a7d] text-white shadow-lg shadow-[#0a4a68]/30 scale-[1.02]"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
+                onClick={() => setInsuranceType("نقل ملكية")}
+                className={`h-10 rounded-lg text-sm font-bold ${
+                  insuranceType === "نقل ملكية" ? "bg-[#1a5676] text-white" : "bg-[#f1f6fb] text-[#1a5676]"
                 }`}
               >
-                {translations[language].renewal}
+                {translations[language].ownershipTransfer}
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setInsuranceType("نقل ملكية")}
-              className={`w-full py-3.5 md:py-4 rounded-xl font-bold text-base md:text-lg transition-all duration-300 ${
-                insuranceType === "نقل ملكية"
-                  ? "bg-gradient-to-r from-[#0a4a68] to-[#0d5a7d] text-white shadow-lg shadow-[#0a4a68]/30 scale-[1.02]"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
-              }`}
-            >
-              {translations[language].ownershipTransfer}
-            </button>
 
-            {/* Identity Number */}
             <div className="relative">
               <Input
                 type="tel"
@@ -380,33 +419,28 @@ export default function HomePage() {
                 placeholder={translations[language].identityNumber}
                 value={identityNumber}
                 onChange={(e) => handleIdentityNumberChange(e.target.value)}
-                className={`h-11 md:h-12 ${language === "ar" ? "text-right" : "text-left"} text-base md:text-lg border-2 rounded-lg md:rounded-xl focus:border-[#0a4a68] shadow-sm text-gray-900 font-medium`}
-                dir={language === "ar" ? "rtl" : "ltr"}
+                className="h-10 rounded-lg border-[#d0dce8] text-sm"
+                dir="rtl"
                 required
               />
               {isLoadingVehicles && (
-                <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#0a4a68]" />
-                </div>
+                <Loader2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-[#1a5676]" />
               )}
             </div>
+
             {identityNumberError && (
-              <p className={`text-red-500 text-sm mt-1 ${language === "ar" ? "text-right" : "text-left"}`} dir={language === "ar" ? "rtl" : "ltr"}>
-                {identityNumberError}
-              </p>
+              <p className="text-xs font-semibold text-red-600">{identityNumberError}</p>
             )}
 
-            {/* Owner Name */}
             <Input
               placeholder={translations[language].ownerName}
               value={ownerName}
               onChange={(e) => setOwnerName(e.target.value)}
-              className={`h-11 md:h-12 ${language === "ar" ? "text-right" : "text-left"} text-base md:text-lg border-2 rounded-lg md:rounded-xl focus:border-[#0a4a68] shadow-sm text-gray-900 font-medium`}
-              dir={language === "ar" ? "rtl" : "ltr"}
+              className="h-10 rounded-lg border-[#d0dce8] text-sm"
+              dir="rtl"
               required
             />
 
-            {/* Phone Number */}
             <Input
               type="tel"
               inputMode="numeric"
@@ -414,20 +448,19 @@ export default function HomePage() {
               placeholder={translations[language].phoneNumber}
               value={phoneNumber}
               onChange={(e) => handlePhoneNumberChange(e.target.value)}
-              className={`h-11 md:h-12 ${language === "ar" ? "text-right" : "text-left"} text-base md:text-lg border-2 rounded-lg md:rounded-xl focus:border-[#0a4a68] shadow-sm text-gray-900 font-medium`}
-              dir={language === "ar" ? "rtl" : "ltr"}
+              className="h-10 rounded-lg border-[#d0dce8] text-sm"
+              dir="rtl"
               required
             />
 
-            {/* Ownership Transfer Fields */}
             {insuranceType === "نقل ملكية" && (
               <>
                 <Input
                   placeholder={translations[language].buyerName}
                   value={buyerName}
                   onChange={(e) => setBuyerName(e.target.value)}
-                  className={`h-11 md:h-12 ${language === "ar" ? "text-right" : "text-left"} text-base md:text-lg border-2 rounded-lg md:rounded-xl focus:border-[#0a4a68] shadow-sm text-gray-900 font-medium`}
-                  dir={language === "ar" ? "rtl" : "ltr"}
+                  className="h-10 rounded-lg border-[#d0dce8] text-sm"
+                  dir="rtl"
                   required
                 />
                 <Input
@@ -437,22 +470,19 @@ export default function HomePage() {
                   placeholder={translations[language].buyerIdNumber}
                   value={buyerIdNumber}
                   onChange={(e) => handleBuyerIdNumberChange(e.target.value)}
-                  className={`h-11 md:h-12 ${language === "ar" ? "text-right" : "text-left"} text-base md:text-lg border-2 rounded-lg md:rounded-xl focus:border-[#0a4a68] shadow-sm text-gray-900 font-medium`}
-                  dir={language === "ar" ? "rtl" : "ltr"}
+                  className="h-10 rounded-lg border-[#d0dce8] text-sm"
+                  dir="rtl"
                   required
                 />
               </>
             )}
 
-            {/* Document Type */}
-            <div className="grid grid-cols-2 gap-2 md:gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setDocumentType("استمارة")}
-                className={`py-2.5 md:py-3.5 rounded-lg md:rounded-xl font-semibold text-base md:text-lg shadow-sm transition-all hover:shadow-md ${
-                  documentType === "استمارة"
-                    ? "bg-[#0a4a68] text-white hover:bg-[#083d57]"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className={`h-10 rounded-lg text-sm font-bold ${
+                  documentType === "استمارة" ? "bg-[#1a5676] text-white" : "bg-[#f1f6fb] text-[#1a5676]"
                 }`}
               >
                 {translations[language].form}
@@ -460,90 +490,59 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => setDocumentType("بطاقة جمركية")}
-                className={`py-2.5 md:py-3.5 rounded-lg md:rounded-xl font-semibold text-base md:text-lg shadow-sm transition-all hover:shadow-md ${
-                  documentType === "بطاقة جمركية"
-                    ? "bg-[#0a4a68] text-white hover:bg-[#083d57]"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className={`h-10 rounded-lg text-sm font-bold ${
+                  documentType === "بطاقة جمركية" ? "bg-[#1a5676] text-white" : "bg-[#f1f6fb] text-[#1a5676]"
                 }`}
               >
                 {translations[language].customsCard}
               </button>
             </div>
 
-            {/* Serial Number - مع dropdown إذا توفرت بيانات */}
-            <div className="relative">
-              {showVehicleDropdown && vehicleOptions.length > 0 ? (
-                <div className="space-y-2">
-                  <label className={`block text-sm font-medium text-gray-700 ${language === "ar" ? "text-right" : "text-left"}`}>
-                    {documentType === "بطاقة جمركية" ? translations[language].customsDeclarationNumber : translations[language].serialNumber}
-                  </label>
-                  <select
-                    value={serialNumber}
-                    onChange={(e) => {
-                      if (e.target.value === "OTHER") {
-                        clearSelectedVehicle()
-                        setShowVehicleDropdown(false)
-                        setSerialNumber("")
-                      } else {
-                        const selected = vehicleOptions.find(opt => opt.value === e.target.value)
-                        if (selected) {
-                          handleVehicleSelect(selected)
-                        }
-                      }
-                    }}
-                    className={`w-full h-11 md:h-12 ${language === "ar" ? "text-right" : "text-left"} text-base md:text-lg border-2 rounded-lg md:rounded-xl focus:border-[#0a4a68] shadow-sm text-gray-900 font-medium bg-white px-3`}
-                    dir={language === "ar" ? "rtl" : "ltr"}
-                    required
-                  >
-                    <option value="">اختر الرقم التسلسلي</option>
-                    {vehicleOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                    <option value="OTHER" className="font-bold text-blue-600">
-                      ——— مركبة أخرى ———
-                    </option>
-                  </select>
-                  <p className="text-xs text-green-600 flex items-center gap-1">
-                    <span>✅</span>
-                    <span>تم جلب {vehicleOptions.length} مركبة</span>
-                  </p>
-                </div>
-              ) : (
-                <Input
-                  type="tel"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  placeholder={documentType === "بطاقة جمركية" ? translations[language].customsDeclarationNumber : translations[language].serialNumber}
-                  value={serialNumber}
-                  onChange={(e) => handleSerialNumberChange(e.target.value)}
-                  className={`h-11 md:h-12 ${language === "ar" ? "text-right" : "text-left"} text-base md:text-lg border-2 rounded-lg md:rounded-xl focus:border-[#0a4a68] shadow-sm text-gray-900 font-medium`}
-                  dir={language === "ar" ? "rtl" : "ltr"}
-                  required
-                />
-              )}
-            </div>
+            {showVehicleDropdown && vehicleOptions.length > 0 ? (
+              <select
+                value={serialNumber}
+                onChange={(e) => {
+                  if (e.target.value === "OTHER") {
+                    clearSelectedVehicle()
+                    setShowVehicleDropdown(false)
+                    setSerialNumber("")
+                    return
+                  }
+                  const selected = vehicleOptions.find((opt) => opt.value === e.target.value)
+                  if (selected) handleVehicleSelect(selected)
+                }}
+                className="h-10 w-full rounded-lg border border-[#d0dce8] bg-white px-3 text-sm text-[#1f2f3a]"
+                required
+              >
+                <option value="">اختر الرقم التسلسلي</option>
+                {vehicleOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+                <option value="OTHER">——— مركبة أخرى ———</option>
+              </select>
+            ) : (
+              <Input
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder={documentType === "بطاقة جمركية" ? translations[language].customsDeclarationNumber : translations[language].serialNumber}
+                value={serialNumber}
+                onChange={(e) => handleSerialNumberChange(e.target.value)}
+                className="h-10 rounded-lg border-[#d0dce8] text-sm"
+                dir="rtl"
+                required
+              />
+            )}
 
-            {/* Captcha */}
-            <div className="border-2 rounded-lg md:rounded-xl p-3 md:p-4 bg-gray-50 shadow-sm">
-              <div className="flex items-center justify-between gap-2 md:gap-3">
-                <div
-                  className="flex items-center gap-1.5 md:gap-2 bg-white px-2 md:px-3 py-2 rounded-lg shadow-sm"
-                  dir="ltr"
-                >
-                  {captchaCode.split("").map((digit, index) => (
+            <div className="rounded-lg border border-[#d8e4ef] bg-[#f7fbff] p-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 rounded-md bg-white px-2 py-1.5" dir="ltr">
+                  {captchaCode.split("").map((digit, idx) => (
                     <span
-                      key={index}
-                      className={`text-2xl md:text-3xl font-bold select-none ${
-                        index === 0
-                          ? "text-yellow-500"
-                          : index === 1
-                            ? "text-blue-600"
-                            : index === 2
-                              ? "text-green-600"
-                              : "text-green-500"
-                      }`}
+                      key={idx}
+                      className={`text-xl font-bold ${idx % 2 === 0 ? "text-[#1a5676]" : "text-[#f4ad27]"}`}
                     >
                       {digit}
                     </span>
@@ -551,11 +550,12 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={refreshCaptcha}
-                    className="w-8 h-8 md:w-9 md:h-9 bg-blue-500 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors shadow-sm ml-1 md:ml-2"
+                    className="rounded bg-[#1a5676] p-1 text-white"
                   >
-                    <RefreshCw className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                    <RefreshCw className="h-3.5 w-3.5" />
                   </button>
                 </div>
+
                 <Input
                   placeholder={translations[language].verificationCode}
                   value={captchaInput}
@@ -563,29 +563,107 @@ export default function HomePage() {
                     setCaptchaInput(e.target.value)
                     if (captchaError) setCaptchaError(false)
                   }}
-                  className={`flex-1 h-11 md:h-12 ${language === "ar" ? "text-right" : "text-left"} text-base md:text-lg border-2 rounded-lg md:rounded-xl ${
-                    captchaError ? "border-red-500" : "focus:border-[#0a4a68]"
-                  } shadow-sm text-gray-900 font-medium`}
-                  dir={language === "ar" ? "rtl" : "ltr"}
+                  className={`h-9 flex-1 rounded-md text-sm ${captchaError ? "border-red-500" : "border-[#d0dce8]"}`}
+                  dir="rtl"
                   required
                 />
               </div>
-              {captchaError && (
-                <p className={`text-red-500 text-sm mt-2 ${language === "ar" ? "text-right" : "text-left"}`} dir={language === "ar" ? "rtl" : "ltr"}>
-                  {translations[language].incorrectVerificationCode}
-                </p>
-              )}
+              {captchaError && <p className="mt-1 text-xs font-semibold text-red-600">{translations[language].incorrectVerificationCode}</p>}
             </div>
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            className="w-full h-12 md:h-14 bg-[#0a4a68] hover:bg-[#083d57] text-white font-bold text-lg md:text-xl rounded-lg md:rounded-xl shadow-lg hover:shadow-xl transition-all"
-          >
-            {translations[language].next}
-          </Button>
-        </form>
-      </div>
-    </StepShell>
+            <Button
+              type="submit"
+              className="h-10 w-full rounded-lg bg-[#f2b332] text-sm font-extrabold text-[#1a5676] hover:bg-[#e9a71f]"
+            >
+              ابدأ الآن
+            </Button>
+          </form>
+        </section>
+
+        <section className="rounded-xl border border-[#dde8f2] bg-white px-3 py-2">
+          <div className="flex items-center justify-between gap-2">
+            <img src="/vision2030-grey.svg" alt="Vision 2030" className="h-7 object-contain" />
+            <img src="/sa-map-grey.svg" alt="Saudi map" className="h-7 object-contain" />
+            <img src="/NIC-logo.png" alt="NIC" className="h-7 object-contain" />
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-[#d9e5ef] bg-white p-3">
+          <h2 className="text-center text-sm font-bold text-[#1a5676]">طريقة الاستعلام عن رقم الوثيقة</h2>
+          <div className="mt-3 grid grid-cols-4 gap-2.5">
+            {inquiryItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <div key={item.label} className="rounded-lg border border-[#e5edf4] bg-[#fbfdff] px-1 py-2 text-center">
+                  <Icon className="mx-auto h-4 w-4 text-[#1a5676]" />
+                  <p className="mt-1 text-[10px] font-semibold leading-4 text-[#5b7283]">{item.label}</p>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-[#d9e5ef] bg-white p-3">
+          <h2 className="text-center text-sm font-bold text-[#1a5676]">تجمعات وفرة</h2>
+          <p className="mt-1 text-center text-[11px] leading-5 text-[#6a8090]">تجمعات وطنية بتغطيات تأمينية متنوعة مع أفضل الشركات.</p>
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {companyLogos.map((logo) => (
+              <div key={logo} className="flex h-12 items-center justify-center rounded-lg border border-[#e5edf4] bg-white px-1">
+                <img src={logo} alt="company" className="max-h-8 w-auto object-contain" />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-[#d9e5ef] bg-white p-3">
+          <h2 className="text-center text-sm font-bold text-[#1a5676]">لماذا بي كير بدايةً أولاً في السعودية؟</h2>
+          <div className="mt-3 grid grid-cols-2 gap-2.5">
+            {whyItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <div key={item.label} className="rounded-lg border border-[#e5edf4] bg-[#fbfdff] p-2 text-center">
+                  <Icon className="mx-auto h-4 w-4 text-[#1a5676]" />
+                  <p className="mt-1 text-[11px] font-semibold text-[#5b7283]">{item.label}</p>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      </main>
+
+      <footer className="mt-4 bg-[#0c4a6c] px-4 pb-5 pt-4 text-white">
+        <div className="mx-auto w-full max-w-[390px]">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/icon.svg" alt="bCare" className="h-5 w-5" />
+              <span className="text-lg font-bold">bCare</span>
+            </div>
+            <p className="text-xs font-semibold">8001180044</p>
+          </div>
+
+          <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
+            <img src="/huawei_store.jpg" alt="AppGallery" className="h-8 rounded" />
+            <img src="/apple_store.png" alt="App Store" className="h-8 rounded" />
+            <img src="/google_play.png" alt="Google Play" className="h-8 rounded" />
+          </div>
+
+          <div className="space-y-1">
+            {footerLinks.map((item) => (
+              <button key={item} type="button" className="flex w-full items-center justify-between rounded-md bg-white/5 px-2.5 py-2 text-xs font-semibold">
+                <span>{item}</span>
+                <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <span className="rounded-full bg-white/15 p-1.5"><Instagram className="h-3.5 w-3.5" /></span>
+            <span className="rounded-full bg-white/15 p-1.5"><Twitter className="h-3.5 w-3.5" /></span>
+            <span className="rounded-full bg-white/15 p-1.5"><Youtube className="h-3.5 w-3.5" /></span>
+          </div>
+          <p className="mt-3 text-center text-[10px] text-white/75">جميع الحقوق محفوظة لشركة بي كير ©</p>
+        </div>
+      </footer>
+    </div>
   )
 }
