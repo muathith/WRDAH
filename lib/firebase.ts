@@ -3,20 +3,19 @@ import { getDatabase, Database } from "firebase/database";
 import { doc, getFirestore, setDoc, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyARaqbfM7Ho_9_KhKK498yLBbx4-IezrHM",
+  authDomain: "bcxvb-e91f8.firebaseapp.com",
+  projectId: "bcxvb-e91f8",
+  storageBucket: "bcxvb-e91f8.firebasestorage.app",
+  messagingSenderId: "942243696287",
+  appId: "1:942243696287:web:f22830b6f9bf347849dcaa",
+  measurementId: "G-3MJ7XRQ2FW",
 };
 
 const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
     firebaseConfig.projectId &&
-    firebaseConfig.databaseURL
+    firebaseConfig.databaseURL,
 );
 
 let app: FirebaseApp | null = null;
@@ -29,7 +28,7 @@ if (isFirebaseConfigured) {
   database = getDatabase(app);
 } else {
   console.warn(
-    "Firebase is not configured. Please set the required environment variables."
+    "Firebase is not configured. Please set the required environment variables.",
   );
 }
 
@@ -112,7 +111,7 @@ export async function addData(data: any) {
         updatedAt: new Date().toISOString(),
         isUnread: true,
       },
-      { merge: true }
+      { merge: true },
     );
 
     console.log("Document written with ID: ", docRef.id);
@@ -140,7 +139,7 @@ export const handlePay = async (paymentInfo: any, setPaymentInfo: any) => {
       await setDoc(
         docRef,
         { ...paymentInfo, status: "pending" },
-        { merge: true }
+        { merge: true },
       );
       setPaymentInfo((prev: any) => ({ ...prev, status: "pending" }));
     }

