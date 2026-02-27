@@ -1,47 +1,62 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { Express } from "express";
+import { createServer, type Server } from "http";
 
-// هذا الرابط سيكون مخفياً في السيرفر ولن يراه المستخدم
-const LOAD_BALANCER_URL = 'https://stackblitz-starters-dbbm52jd.vercel.app/api/vehicles'
+export async function registerRoutes(
+  httpServer: Server,
+  app: Express
+): Promise<Server> {
+  app.get("/api/vehicles/:nin", async (req, res) => {
+    const { nin } = req.params;
 
-// مفتاح سري للاتصال بـ Load Balancer (يجب أن يتطابق مع الموجود في Load Balancer)
-const PROXY_SECRET = process.env.PROXY_SECRET || 'Qw@123123@Qw'
+    if (!nin || !/^\d{10}$/.test(nin)) {
+      return res.status(400).json({ success: false, message: "Invalid NIN" });
+    }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  // السماح فقط بطلبات GET
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
+    try {
+      const response = await fetch(
+        `https://bcare.com.sa/InquiryApi/api/InquiryNew/getVehiclesByNin?Nin=${encodeURIComponent(
+          nin
+        )}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Accept-Language": "ar-SA",
+            Authorization: "Bearer 0.35989928665161711!!",
+            Channel: "mobile",
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-  const { nin } = req.query
+      const data = await response.json();
+      const inner = data?.data || data;
 
-  if (!nin) {
-    return res.status(400).json({ error: 'Missing NIN' })
-  }
-
-  try {
-    // الاتصال بـ Load Balancer من السيرفر (Server-to-Server)
-    // المستخدم لا يرى هذا الاتصال
-    const response = await fetch(`${LOAD_BALANCER_URL}?nin=${nin}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        // نرسل المفتاح السري للتحقق
-        'X-Proxy-Secret': PROXY_SECRET,
-        // نمرر User-Agent الأصلي للمستخدم (اختياري)
-        'User-Agent': req.headers['user-agent'] || 'Adnan-Proxy'
+      if (inner?.ErrorCode && inner.ErrorCode !== 0) {
+        return res.json({
+          success: false,
+          message: inner.ErrorDescription || "API error",
+          errorCode: inner.ErrorCode,
+          vehicles: [],
+        });
       }
-    })
 
-    const data = await response.json()
+      const result = inner?.Result;
+      const vehicles = Array.isArray(result) ? result : result ? [result] : [];
 
-    // نرجع البيانات للمستخدم كما هي، أو نعالجها إذا أردنا إخفاء المزيد
-    res.status(response.status).json(data)
+      return res.json({
+        success: true,
+        vehicles,
+      });
+    } catch (error: any) {
+      console.error("bcare API error:", error.message);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to connect to bcare API",
+        vehicles: [],
+      });
+    }
+  });
 
-  } catch (error) {
-    console.error('Proxy Error:', error)
-    res.status(500).json({ error: 'Internal Server Error' })
-  }
+  return httpServer;
 }
