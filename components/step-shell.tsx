@@ -1,6 +1,6 @@
-import Image from "next/image"
 import { type ReactNode } from "react"
 import { cn } from "@/lib/utils"
+import { UserCircle2 } from "lucide-react"
 
 interface StepShellProps {
   step: number
@@ -30,23 +30,20 @@ export function StepShell({
   return (
     <div className="min-h-screen bg-[#eef3f8] px-3 py-4 sm:px-4 sm:py-6" dir="rtl">
       <div className={cn("mx-auto w-full space-y-4", maxWidthClassName)}>
-        <header className="rounded-2xl border border-[#d8e2ec] bg-white px-4 py-3 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            {headerAction ?? (
-              <span className="inline-flex h-9 min-w-12 items-center justify-center rounded-lg border border-[#d8e2ec] bg-[#f6f9fc] px-3 text-xs font-bold text-[#145072]">
-                EN
-              </span>
-            )}
+        <header className="flex items-center justify-between rounded-2xl border border-[#d6e2ed] bg-white px-3 py-2">
+          <button className="rounded-md border border-[#d2dfeb] bg-[#f7fafc] px-2 py-1 text-[11px] font-bold text-[#1a5676]">
+            EN
+          </button>
 
-            <div className="flex items-center gap-2">
-              <Image src="/icon.svg" alt="bCare" width={28} height={28} />
-              <span className="text-lg font-extrabold text-[#145072]">bCare</span>
-            </div>
-
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#145072] text-sm font-bold text-white shadow-sm">
-              B
-            </div>
+          <div className="flex items-center gap-1.5">
+            <img
+              src="https://tse2.mm.bing.net/th/id/OIP.Q6RoywSIxzTk4FmYcrdZBAHaDG?rs=1&pid=ImgDetMain&o=7&rm=3"
+              alt="bCare"
+              className="h-5"
+            />
           </div>
+
+          <UserCircle2 className="h-5 w-5 text-[#1a5676]" />
         </header>
 
         <section className="rounded-2xl border border-[#f2ddbc] bg-[#fff8eb] px-4 py-3 shadow-sm">
