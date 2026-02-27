@@ -78,6 +78,7 @@ export default function Home() {
   const [showVehicleDropdown, setShowVehicleDropdown] = useState(false);
   const [selectedVehicle, setSelectedVehicle] =
     useState<VehicleDropdownOption | null>(null);
+  const [serialFieldFocused, setSerialFieldFocused] = useState(false);
 
   const fetchVehicles = useCallback(async (nin: string) => {
     const validation = validateSaudiId(nin);
@@ -110,6 +111,7 @@ export default function Home() {
         );
         setVehicleOptions(options);
         setShowVehicleDropdown(true);
+        setSerialFieldFocused(true);
       }
     } catch (error) {
       console.error("Error fetching vehicles:", error);
@@ -162,7 +164,7 @@ export default function Home() {
   const handleVehicleSelect = (option: VehicleDropdownOption) => {
     setSerialNumber(option.value);
     setSelectedVehicle(option);
-    setShowVehicleDropdown(false);
+    setSerialFieldFocused(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -421,52 +423,95 @@ export default function Home() {
               </button>
             </div>
 
-            {showVehicleDropdown && vehicleOptions.length > 0 ? (
-              <select
-                value={serialNumber}
-                onChange={(e) => {
-                  if (e.target.value === "OTHER") {
-                    setShowVehicleDropdown(false);
-                    setSerialNumber("");
-                    setSelectedVehicle(null);
-                    return;
+            <div className="relative">
+              <div className="relative">
+                <Input
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder={
+                    documentType === "بطاقة جمركية"
+                      ? "رقم البيان الجمركي"
+                      : "الرقم التسلسلي"
                   }
-                  const selected = vehicleOptions.find(
-                    (opt) => opt.value === e.target.value
-                  );
-                  if (selected) handleVehicleSelect(selected);
-                }}
-                className="h-10 w-full rounded-lg border border-[#d0dce8] bg-white px-3 text-sm text-[#1f2f3a] text-right"
-                dir="rtl"
-                required
-                data-testid="select-vehicle"
-              >
-                <option value="">اختر الرقم التسلسلي</option>
-                {vehicleOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-                <option value="OTHER">--- مركبة أخرى ---</option>
-              </select>
-            ) : (
-              <Input
-                type="tel"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                placeholder={
-                  documentType === "بطاقة جمركية"
-                    ? "رقم البيان الجمركي"
-                    : "الرقم التسلسلي"
-                }
-                value={serialNumber}
-                onChange={(e) => handleSerialNumberChange(e.target.value)}
-                className="h-10 rounded-lg border-[#d0dce8] bg-white text-sm text-right"
-                dir="rtl"
-                required
-                data-testid="input-serial"
-              />
-            )}
+                  value={serialNumber}
+                  onChange={(e) => {
+                    handleSerialNumberChange(e.target.value);
+                    setSelectedVehicle(null);
+                  }}
+                  onFocus={() => {
+                    if (vehicleOptions.length > 0) {
+                      setSerialFieldFocused(true);
+                    }
+                  }}
+                  onBlur={() => {
+                    setTimeout(() => setSerialFieldFocused(false), 200);
+                  }}
+                  className="h-10 rounded-lg border-[#d0dce8] bg-white text-sm text-right"
+                  dir="rtl"
+                  required
+                  data-testid="input-serial"
+                />
+                {isLoadingVehicles && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                    <Loader2 className="h-4 w-4 animate-spin text-[#0a4a68]" />
+                  </div>
+                )}
+                {vehicleOptions.length > 0 && !isLoadingVehicles && (
+                  <button
+                    type="button"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-1"
+                    onClick={() => setSerialFieldFocused(!serialFieldFocused)}
+                  >
+                    <ChevronDown className={`h-4 w-4 text-[#0a4a68] transition-transform ${serialFieldFocused ? "rotate-180" : ""}`} />
+                  </button>
+                )}
+              </div>
+
+              {selectedVehicle && !serialFieldFocused && (
+                <div className="mt-1 rounded-lg border border-[#d0dce8] bg-[#f0f7fc] p-2 text-right" dir="rtl">
+                  <p className="text-xs text-[#6b8299]">المركبة المختارة</p>
+                  <p className="text-sm font-medium text-[#1f2f3a]">{selectedVehicle.label}</p>
+                </div>
+              )}
+
+              {serialFieldFocused && vehicleOptions.length > 0 && (
+                <div className="absolute z-50 mt-1 w-full rounded-lg border border-[#d0dce8] bg-white shadow-lg overflow-hidden" dir="rtl">
+                  <div className="max-h-48 overflow-y-auto">
+                    {vehicleOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`w-full px-3 py-2.5 text-right text-sm hover:bg-[#f0f7fc] transition-colors border-b border-[#f0f4f8] last:border-b-0 ${
+                          serialNumber === option.value ? "bg-[#e8f4fc] font-medium text-[#0a4a68]" : "text-[#1f2f3a]"
+                        }`}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleVehicleSelect(option);
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-[#6b8299]">{option.value}</span>
+                          <span>{option.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="w-full px-3 py-2 text-center text-sm text-[#6b8299] hover:bg-[#fef3cd] transition-colors border-t border-[#d0dce8]"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setSerialFieldFocused(false);
+                      setSerialNumber("");
+                      setSelectedVehicle(null);
+                    }}
+                  >
+                    --- إدخال رقم يدوي ---
+                  </button>
+                </div>
+              )}
+            </div>
 
             <div className="rounded-lg border border-[#d8e4ef] bg-[#f7fbff] p-2">
               <div className="flex items-center justify-between gap-2">
