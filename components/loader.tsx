@@ -1,39 +1,71 @@
 export function FullPageLoader() {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-        <div className="flex flex-col items-center gap-6">
-          <div className="relative h-20 w-20">
-            {/* Outer ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
-            {/* Animated ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#0a4a68] animate-spin"></div>
-            {/* Inner ring for depth */}
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/90 backdrop-blur-sm">
+      <div className="flex flex-col items-center gap-5">
+        <div className="relative flex items-center justify-center">
+          <svg
+            className="h-16 w-16 animate-spin"
+            style={{ animationDuration: "1.2s" }}
+            viewBox="0 0 50 50"
+          >
+            <circle
+              cx="25"
+              cy="25"
+              r="20"
+              fill="none"
+              stroke="#e8f0f6"
+              strokeWidth="4"
+            />
+            <circle
+              cx="25"
+              cy="25"
+              r="20"
+              fill="none"
+              stroke="url(#loaderGradient)"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeDasharray="80, 126"
+            />
+            <defs>
+              <linearGradient id="loaderGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#0a4a68" />
+                <stop offset="100%" stopColor="#f4ad27" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div className="flex flex-col items-center gap-2.5">
+          <p className="text-sm font-semibold text-[#0a4a68] tracking-wide">
+            جاري التحميل...
+          </p>
+          <div className="h-1 w-32 overflow-hidden rounded-full bg-[#e8f0f6]">
             <div
-              className="absolute inset-2 rounded-full border-4 border-transparent border-t-yellow-500/50 animate-spin"
-              style={{ animationDuration: "1.5s", animationDirection: "reverse" }}
-            ></div>
-            
-          </div>
-  
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-sm font-medium text-foreground tracking-wide">يرجى الأنتظار</p>
-            <div className="flex gap-1">
-              <span
-                className="h-1.5 w-1.5 rounded-full  bg-[#0a4a68] animate-pulse"
-                style={{ animationDelay: "0ms" }}
-              ></span>
-              <span
-                className="h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse"
-                style={{ animationDelay: "150ms" }}
-              ></span>
-              <span
-                className="h-1.5 w-1.5 rounded-full  bg-[#0a4a68]  animate-pulse"
-                style={{ animationDelay: "300ms" }}
-              ></span>
-            </div>
+              className="h-full rounded-full bg-gradient-to-r from-[#0a4a68] to-[#f4ad27]"
+              style={{
+                animation: "loading-bar 1.5s ease-in-out infinite",
+              }}
+            />
           </div>
         </div>
       </div>
-    )
-  }
-  
+
+      <style jsx>{`
+        @keyframes loading-bar {
+          0% {
+            width: 0%;
+            margin-right: 0;
+          }
+          50% {
+            width: 70%;
+            margin-right: 0;
+          }
+          100% {
+            width: 0%;
+            margin-right: 100%;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
