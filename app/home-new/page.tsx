@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +57,7 @@ function validateSaudiId(id: string): { valid: boolean; error: string } {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [identityNumber, setIdentityNumber] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -182,7 +184,26 @@ export default function Home() {
     }
 
     setSubmitting(true);
-    setTimeout(() => setSubmitting(false), 2000);
+
+    try {
+      localStorage.setItem("homeFormData", JSON.stringify({
+        identityNumber,
+        ownerName,
+        phoneNumber,
+        documentType,
+        serialNumber,
+        insuranceType,
+        buyerName,
+        buyerIdNumber,
+        activeTab,
+        selectedVehicle,
+        timestamp: new Date().toISOString(),
+      }));
+    } catch (err) {
+      console.error("Error saving form data:", err);
+    }
+
+    router.push("/insur");
   };
 
   const productTabs = [
