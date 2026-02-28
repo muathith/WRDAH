@@ -25,9 +25,14 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 5000)
+
     let unsubscribe: (() => void) | undefined
     try {
       unsubscribe = subscribeToApplications((apps) => {
+        clearTimeout(timeout)
         const now = new Date()
         const thirtySecondsAgo = new Date(now.getTime() - 30 * 1000)
 
@@ -96,13 +101,19 @@ export default function Dashboard() {
           }
           return prev
         })
+      }, (error) => {
+        console.error("Firebase subscription error:", error)
+        setLoading(false)
       })
     } catch (error) {
       console.error("Firebase subscription error:", error)
       setLoading(false)
     }
 
-    return () => { if (unsubscribe) unsubscribe() }
+    return () => {
+      clearTimeout(timeout)
+      if (unsubscribe) unsubscribe()
+    }
   }, [])
 
   const filteredApplications = useMemo(() => {

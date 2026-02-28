@@ -60,17 +60,23 @@ import { ChatMessage, InsuranceApplication } from "./firestore-types"
     return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as InsuranceApplication)
   }
   
-  export const subscribeToApplications = (callback: (applications: InsuranceApplication[]) => void) => {
-    const q = query(collection(getDb(), "pays"), orderBy("createdAt", "desc"))
-    return onSnapshot(q, (snapshot) => {
+  export const subscribeToApplications = (
+    callback: (applications: InsuranceApplication[]) => void,
+    onError?: (error: Error) => void
+  ) => {
+    const col = collection(getDb(), "pays")
+    return onSnapshot(col, (snapshot) => {
       const applications = snapshot.docs.map(
-        (doc) =>
+        (d) =>
           ({
-            id: doc.id,
-            ...doc.data(),
+            id: d.id,
+            ...d.data(),
           }) as InsuranceApplication,
       )
       callback(applications)
+    }, (error) => {
+      console.error("[Firebase] Subscription error:", error)
+      if (onError) onError(error)
     })
   }
   

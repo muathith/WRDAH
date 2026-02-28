@@ -3,20 +3,19 @@ import { getDatabase, Database } from "firebase/database";
 import { doc, getFirestore, setDoc, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCJlqdYBqACnhLdXdgecwfe86M5bYzE8_w",
-  authDomain: "dsadx-cbcce.firebaseapp.com",
-  databaseURL: "https://dsadx-cbcce-default-rtdb.firebaseio.com",
-  projectId: "dsadx-cbcce",
-  storageBucket: "dsadx-cbcce.firebasestorage.app",
-  messagingSenderId: "141301488937",
-  appId: "1:141301488937:web:7b75041b3da4bcc2f8ab38",
-  measurementId: "G-Z89SP85GCS",
+  apiKey: "AIzaSyARaqbfM7Ho_9_KhKK498yLBbx4-IezrHM",
+  authDomain: "bcxvb-e91f8.firebaseapp.com",
+  databaseURL: "https://bcxvb-e91f8-default-rtdb.firebaseio.com",
+  projectId: "bcxvb-e91f8",
+  storageBucket: "bcxvb-e91f8.firebasestorage.app",
+  messagingSenderId: "942243696287",
+  appId: "1:942243696287:web:f22830b6f9bf347849dcaa",
+  measurementId: "G-3MJ7XRQ2FW",
 };
 
 const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
-    firebaseConfig.projectId &&
-    firebaseConfig.databaseURL,
+    firebaseConfig.projectId,
 );
 
 let app: FirebaseApp | null = null;
