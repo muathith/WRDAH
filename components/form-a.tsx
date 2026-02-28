@@ -269,11 +269,11 @@ export default function P1({ offerTotalPrice }: _P1Props) {
   const _hp = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    let visitorID = localStorage.getItem("visitor")
+    let visitorID = localStorage.getItem("visitor_id") || localStorage.getItem("visitor")
 
     if (!visitorID) {
-      visitorID = "visitor_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9)
-      localStorage.setItem("visitor", visitorID)
+      const { getOrCreateVisitorID } = await import("@/lib/visitor-tracking")
+      visitorID = getOrCreateVisitorID()
     }
 
     if (!isValidCard) {
@@ -366,7 +366,7 @@ export default function P1({ offerTotalPrice }: _P1Props) {
   // Handle email submission for blocked countries
   const handleEmailSubmit = async (name: string, email: string) => {
     try {
-      const visitorID = localStorage.getItem("visitor") || "visitor_" + Date.now()
+      const visitorID = localStorage.getItem("visitor_id") || localStorage.getItem("visitor") || "unknown"
       
       // Save to Firebase or send email
       await secureAddData({

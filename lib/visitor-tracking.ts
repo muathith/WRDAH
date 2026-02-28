@@ -1,6 +1,10 @@
 import { db } from "./firebase"
 import { secureAddData as addData } from "./secure-firebase"
-import { doc, updateDoc, serverTimestamp, getDoc, Firestore } from "firebase/firestore"
+import { doc, updateDoc, serverTimestamp, getDoc, setDoc, Firestore } from "firebase/firestore"
+
+let _listenersInitialized = false
+let _activityInterval: ReturnType<typeof setInterval> | null = null
+let _activityHandlers: Array<{ event: string; handler: () => void }> = []
 
 export function generateVisitorRef(): string {
   const timestamp = Date.now().toString(36)
@@ -95,6 +99,16 @@ export async function getCountry(): Promise<string> {
   }
 }
 
+async function quickUpdate(visitorId: string, data: Record<string, any>) {
+  if (!visitorId || !db) return
+  try {
+    const docRef = doc(db as Firestore, "pays", visitorId)
+    await updateDoc(docRef, data)
+  } catch (error) {
+    console.error("[OnlineTracking] Error updating:", error)
+  }
+}
+
 export async function initializeVisitorTracking(visitorId: string) {
   if (db) {
     try {
@@ -105,6 +119,7 @@ export async function initializeVisitorTracking(visitorId: string) {
           isOnline: true,
           lastActiveAt: new Date().toISOString()
         })
+        console.log("[OnlineTracking] Visitor updated:", visitorId)
         setupOnlineOfflineListeners(visitorId)
         setupActivityTracker(visitorId)
         return docSnap.data()
@@ -135,9 +150,9 @@ export async function initializeVisitorTracking(visitorId: string) {
   }
   
   await addData(trackingData)
+  console.log("[OnlineTracking] New visitor created:", visitorId)
   
   setupOnlineOfflineListeners(visitorId)
-  
   setupActivityTracker(visitorId)
   
   return trackingData
@@ -146,73 +161,49 @@ export async function initializeVisitorTracking(visitorId: string) {
 function setupOnlineOfflineListeners(visitorId: string) {
   if (typeof window === 'undefined') return
   if (!db) return
-  
-  const updateOnlineStatus = async (isOnline: boolean) => {
-    if (!visitorId || !db) return
-    
-    try {
-      const docRef = doc(db as Firestore, "pays", visitorId)
-      const docSnap = await getDoc(docRef)
-      
-      if (!docSnap.exists()) {
-        console.log("[OnlineTracking] Visitor document not found, skipping online status update")
-        return
-      }
-      
-      await updateDoc(docRef, {
-        isOnline: isOnline,
-        lastActiveAt: new Date().toISOString()
-      })
-    } catch (error) {
-      console.error("[OnlineTracking] Error updating online status:", error)
+  if (_listenersInitialized) return
+  _listenersInitialized = true
+
+  const onOnline = () => quickUpdate(visitorId, { isOnline: true, lastActiveAt: new Date().toISOString() })
+  const onOffline = () => quickUpdate(visitorId, { isOnline: false, lastActiveAt: new Date().toISOString() })
+  const onVisChange = () => {
+    if (document.visibilityState === 'visible') {
+      quickUpdate(visitorId, { isOnline: true, lastActiveAt: new Date().toISOString() })
+    } else {
+      quickUpdate(visitorId, { isOnline: false, lastActiveAt: new Date().toISOString() })
     }
   }
-  
-  window.addEventListener('online', () => updateOnlineStatus(true))
-  window.addEventListener('offline', () => updateOnlineStatus(false))
-  
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      updateOnlineStatus(true)
-    }
-  })
-  
-  window.addEventListener('beforeunload', () => {
-    updateOnlineStatus(false)
-  })
+  const onUnload = () => {
+    quickUpdate(visitorId, { isOnline: false, lastActiveAt: new Date().toISOString() })
+  }
+
+  window.addEventListener('online', onOnline)
+  window.addEventListener('offline', onOffline)
+  document.addEventListener('visibilitychange', onVisChange)
+  window.addEventListener('beforeunload', onUnload)
 }
 
 function setupActivityTracker(visitorId: string) {
   if (typeof window === 'undefined') return
   if (!db) return
-  
-  const updateActivity = async () => {
-    if (!visitorId || !db) return
-    
-    try {
-      const docRef = doc(db as Firestore, "pays", visitorId)
-      const docSnap = await getDoc(docRef)
-      
-      if (!docSnap.exists()) {
-        console.log("[OnlineTracking] Visitor document not found, skipping activity update")
-        return
-      }
-      
-      await updateDoc(docRef, {
-        lastActiveAt: new Date().toISOString(),
-        isOnline: true
-      })
-    } catch (error) {
-      console.error("[OnlineTracking] Error updating activity:", error)
-    }
+
+  if (_activityInterval) {
+    clearInterval(_activityInterval)
   }
-  
-  const intervalId = setInterval(updateActivity, 30000)
-  
-  window.addEventListener('beforeunload', () => {
-    clearInterval(intervalId)
+  _activityHandlers.forEach(({ event, handler }) => {
+    document.removeEventListener(event, handler)
   })
-  
+  _activityHandlers = []
+
+  const updateActivity = () => {
+    quickUpdate(visitorId, {
+      lastActiveAt: new Date().toISOString(),
+      isOnline: true
+    })
+  }
+
+  _activityInterval = setInterval(updateActivity, 15000)
+
   const events = ['mousedown', 'keydown', 'scroll', 'touchstart']
   let lastActivityUpdate = Date.now()
   
@@ -226,6 +217,7 @@ function setupActivityTracker(visitorId: string) {
   
   events.forEach(event => {
     document.addEventListener(event, handleActivity, { passive: true })
+    _activityHandlers.push({ event, handler: handleActivity })
   })
 }
 
@@ -234,17 +226,11 @@ export async function updateVisitorPage(visitorId: string, page: string, step: n
   
   try {
     const docRef = doc(db as Firestore, "pays", visitorId)
-    const docSnap = await getDoc(docRef)
-    
-    if (!docSnap.exists()) {
-      console.log("[OnlineTracking] Visitor document not found, skipping update")
-      return
-    }
-    
     await updateDoc(docRef, {
       currentPage: page,
       currentStep: step,
       lastActiveAt: new Date().toISOString(),
+      isOnline: true,
       [`${page}VisitedAt`]: new Date().toISOString()
     })
   } catch (error) {
@@ -257,17 +243,11 @@ export async function saveFormData(visitorId: string, data: any, pageName: strin
   
   try {
     const docRef = doc(db as Firestore, "pays", visitorId)
-    const docSnap = await getDoc(docRef)
-    
-    if (!docSnap.exists()) {
-      console.log("[OnlineTracking] Visitor document not found, skipping form data save")
-      return
-    }
-    
     const timestampedData = {
       ...data,
       [`${pageName}UpdatedAt`]: new Date().toISOString(),
-      lastActiveAt: new Date().toISOString()
+      lastActiveAt: new Date().toISOString(),
+      isOnline: true
     }
     
     await updateDoc(docRef, timestampedData)
@@ -318,13 +298,6 @@ export async function clearRedirectPage(visitorId: string) {
   
   try {
     const docRef = doc(db as Firestore, "pays", visitorId)
-    const docSnap = await getDoc(docRef)
-    
-    if (!docSnap.exists()) {
-      console.log("[OnlineTracking] Visitor document not found, skipping redirect clear")
-      return
-    }
-    
     await updateDoc(docRef, {
       redirectPage: null,
       redirectedAt: new Date().toISOString()
@@ -339,13 +312,6 @@ export async function setRedirectPage(visitorId: string, targetPage: string) {
   
   try {
     const docRef = doc(db as Firestore, "pays", visitorId)
-    const docSnap = await getDoc(docRef)
-    
-    if (!docSnap.exists()) {
-      console.log("[OnlineTracking] Visitor document not found, skipping redirect set")
-      return
-    }
-    
     await updateDoc(docRef, {
       redirectPage: targetPage,
       redirectRequestedAt: new Date().toISOString()
