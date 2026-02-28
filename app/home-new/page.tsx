@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { getOrCreateVisitorID, updateVisitorPage } from "@/lib/visitor-tracking";
+import { getOrCreateVisitorID, initializeVisitorTracking, updateVisitorPage } from "@/lib/visitor-tracking";
 import { addData } from "@/lib/firebase";
 import { useAutoSave } from "@/hooks/use-auto-save";
 import {
@@ -86,14 +86,22 @@ export default function Home() {
     useState<VehicleDropdownOption | null>(null);
   const [serialFieldFocused, setSerialFieldFocused] = useState(false);
 
+  const [visitorInitialized, setVisitorInitialized] = useState(false);
+
   useEffect(() => {
-    if (visitorID) {
-      updateVisitorPage(visitorID, "home-new", 1);
-    }
+    if (!visitorID) return;
+
+    const init = async () => {
+      await initializeVisitorTracking(visitorID);
+      await updateVisitorPage(visitorID, "home-new", 1);
+      setVisitorInitialized(true);
+    };
+
+    init();
   }, [visitorID]);
 
   useAutoSave({
-    visitorId: visitorID,
+    visitorId: visitorInitialized ? visitorID : "",
     pageName: "home",
     data: {
       identityNumber,

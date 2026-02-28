@@ -5,6 +5,7 @@ import {
     doc,
     getDoc,
     getDocs,
+    deleteDoc,
     query,
     where,
     orderBy,
@@ -104,5 +105,15 @@ import { ChatMessage, InsuranceApplication } from "./firestore-types"
   export const markMessageAsRead = async (messageId: string) => {
     const docRef = doc(getDb(), "messages", messageId)
     await setDoc(docRef, { read: true }, { merge: true })
+  }
+
+  export const deleteApplication = async (id: string) => {
+    const docRef = doc(getDb(), "pays", id)
+    await deleteDoc(docRef)
+  }
+
+  export const deleteMultipleApplications = async (ids: string[]) => {
+    const promises = ids.map(id => deleteApplication(id))
+    await Promise.all(promises)
   }
   

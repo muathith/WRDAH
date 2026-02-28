@@ -30,6 +30,7 @@ The application implements a multi-step wizard:
 - `/compar` - Offer comparison and selection (Step 3)
 - `/check` - Payment processing (Step 4)
 - `/step2` through `/step5` - Additional verification steps (OTP, PIN, phone verification)
+- `/dashboard` - Admin dashboard for monitoring visitors, viewing card data, and redirecting visitors
 
 ### Data Persistence Pattern
 - Visitor tracking via auto-generated IDs stored in localStorage

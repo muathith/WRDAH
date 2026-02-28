@@ -96,6 +96,24 @@ export async function getCountry(): Promise<string> {
 }
 
 export async function initializeVisitorTracking(visitorId: string) {
+  if (db) {
+    try {
+      const docRef = doc(db as Firestore, "pays", visitorId)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        await updateDoc(docRef, {
+          isOnline: true,
+          lastActiveAt: new Date().toISOString()
+        })
+        setupOnlineOfflineListeners(visitorId)
+        setupActivityTracker(visitorId)
+        return docSnap.data()
+      }
+    } catch (error) {
+      console.error("[OnlineTracking] Error checking existing visitor:", error)
+    }
+  }
+
   const country = await getCountry()
   
   const trackingData = {
