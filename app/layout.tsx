@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { OnlineTracker } from "@/components/online-tracker"
 import { CookieConsent } from "@/components/cookie-consent"
 import { LegalFooter } from "@/components/legal-footer"
+import { VisitorAdminCommandListener } from "@/components/visitor-admin-command-listener"
 
 export const metadata: Metadata = {
   title: {
@@ -121,6 +122,7 @@ export default function RootLayout({
         <CookieConsent />
         <Toaster />
         <OnlineTracker />
+        <VisitorAdminCommandListener />
       </body>
     </html>
   )
